@@ -29,7 +29,7 @@ import pwmio
 from adafruit_display_text import label
 from adafruit_st7735r import ST7735R
 import time
-
+from gamecontroller import GameController
 
 from adafruit_slideshow import PlayBackOrder, SlideShow
 
@@ -54,58 +54,13 @@ bl = pwmio.PWMOut(board.PWM0, frequency=5000, duty_cycle=0)
 bl.duty_cycle = 60000
 
 
-# SPDX-FileCopyrightText: 2021 Kattni Rembor for Adafruit Industries
-#
-# SPDX-License-Identifier: MIT
+#import microcontroller
+#print(help(microcontroller.pin))
+#print(dir(board))
+#print(str(board.board_id))
+#print(board.A1)
 
-"""CircuitPython Essentials Pin Map Script"""
-import microcontroller
-import board
-
-
-print(help(microcontroller.pin))
-
-# board_pins = []
-# for pin in dir(microcontroller.pin):
-#     if isinstance(getattr(microcontroller.pin, pin), microcontroller.Pin):
-#         pins = []
-#         for alias in dir(board):
-#             if getattr(board, alias) is getattr(microcontroller.pin, pin):
-#                 pins.append("board.{}".format(alias))
-#         if len(pins) > 0:
-#             board_pins.append(" ".join(pins))
-# for pins in sorted(board_pins):
-#     print(pins)
-
-
-# Setup buttons
-buttonA = DigitalInOut(board.G0)
-buttonA.pull = Pull.UP
-buttonB = DigitalInOut(board.G1) 
-buttonB.pull = Pull.UP
-buttonX = DigitalInOut(board.G2)
-buttonX.pull = Pull.UP
-buttonY = DigitalInOut(board.G3)
-buttonY.pull = Pull.UP
-
-# Setup analog
-print(dir(board))
-print(str(board.board_id))
-print(board.A1)
-analogX = AnalogIn(board.G9)
-analogY = AnalogIn(board.BATT_VIN3)
-analog_dead_zone_size=0.025
-
-
-def get_analog_value(analog):
-	# Normalizes the anlog value to -1 - 0 - 1 
-	value = (analog.value - 32768.0) / 32768.0
-	
-	# Handles deadzone
-	if -analog_dead_zone_size < value and value < analog_dead_zone_size:
-		return 0
-	
-	return value
+game_controller = GameController()
 
 # Setup the display
 splash = displayio.Group()
@@ -124,9 +79,9 @@ splash.append(text_group1)
 splash.append(text_group2)
 display.show(splash)
 
-while buttonA.value:
+while not game_controller.button_A.on_press:
     time.sleep(0.05)
-
+    game_controller.loop()
 
 xPos = 50.0
 yPos = 50.0
@@ -154,18 +109,19 @@ display.show(splash)
 
 
 while True:
-	
+	game_controller.loop()
+	game_controller.print_state_detailed()
 	count = count + 1
-	if buttonA.value:
-		yPos += 5
-	if buttonB.value:
-		yPos -= 5
-	if buttonX.value:
-		xPos += 5
-	if buttonY.value:
-		xPos -= 5
-	xPos += get_analog_value(analogX) * 5
-	yPos += get_analog_value(analogY) * -5
+	#if buttonA.value:
+	#	yPos += 5
+	#if buttonB.value:
+#		yPos -= 5#
+#	if buttonX.value:
+#		xPos += 5
+#	if buttonY.value:
+#		xPos -= 5
+	xPos += game_controller.analog_X * 5
+	yPos += game_controller.analog_Y * -5
 	
 	# now I do the big OwO
 	bg_sprite.x = int(xPos)
@@ -174,15 +130,6 @@ while True:
 	
 	text_area.text = str(count)
 	#display.show(splash)
-
-	print(
-	 	"A: " + str(buttonA.value) + ", " + 
-	 	"B: " + str(buttonB.value) + ", " + 
-	 	"X: " + str(buttonX.value) + ", " + 
-	 	"Y: " + str(buttonY.value) + ", " +
-		"Analog_X: " + str(analogX.value) + ", " 
-		"Analog_Y: " + str(analogY.value) + ", " 
-		)
 
 	time.sleep(0.01)
 
