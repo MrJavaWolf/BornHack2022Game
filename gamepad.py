@@ -80,7 +80,7 @@ class GamePad:
         """Call this exactly once per frame to keep the buttons states up to date"""
 
         self.button_A.loop(self.read_button_value(self.button_A_io))
-        self.button_B.loop(self.read_button_value(self.button_A_io))
+        self.button_B.loop(self.read_button_value(self.button_B_io))
         self.button_X.loop(self.read_button_value(self.button_X_io))
         self.button_Y.loop(self.read_button_value(self.button_Y_io))
         self.analog_X = self.read_analog_value(self.analog_X_io, INVERT_ANALOG_X)
@@ -103,7 +103,7 @@ class GamePad:
         return value
 
     def print_state(self):
-        """Print the overall state of the game controller"""
+        """Print the overall state of the game pad"""
         print(
             json.dumps(
                 OrderedDict(
@@ -120,7 +120,7 @@ class GamePad:
         )
 
     def print_state_detailed(self):
-        """Print the full state of the game controller"""
+        """Print the full state of the game pad"""
         print(
             json.dumps(
                 OrderedDict(
