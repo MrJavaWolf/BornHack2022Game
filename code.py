@@ -30,6 +30,7 @@ from adafruit_display_text import label
 from adafruit_st7735r import ST7735R
 import time
 from gamepad import GamePad
+from player import Player
 
 from adafruit_slideshow import PlayBackOrder, SlideShow
 
@@ -60,7 +61,7 @@ bl.duty_cycle = 60000
 #print(str(board.board_id))
 #print(board.A1)
 
-game_pad = GamePad()
+gamepad = GamePad()
 
 # Setup the display
 splash = displayio.Group()
@@ -79,15 +80,13 @@ splash.append(text_group1)
 splash.append(text_group2)
 display.show(splash)
 
-while not game_pad.button_A.on_press:
+while not gamepad.button_A.on_press:
     time.sleep(0.05)
-    game_pad.loop()
+    gamepad.loop()
 
-xPos = 50.0
-yPos = 50.0
+player = Player(50,50)
 
 count = 1
-
 splash = displayio.Group()
 
 # Text
@@ -96,37 +95,17 @@ text = str(count)
 text_area = label.Label(terminalio.FONT, text=text, color=0xFF0000)
 text_group.append(text_area)  # Subgroup for text scaling
 
-# Player
-color_bitmap = displayio.Bitmap(10, 10, 1)
-color_palette = displayio.Palette(1)
-color_palette[0] = 0x00FF00
-bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=int(xPos), y=int(yPos))
-	
 # Show on screen
+splash.append(player.sprite)
 splash.append(text_group)
-splash.append(bg_sprite)
 display.show(splash)
 
 
 while True:
-	game_pad.loop()
-	game_pad.print_state_detailed()
+	gamepad.loop()
+	gamepad.print_state_detailed()
 	count = count + 1
-	#if buttonA.value:
-	#	yPos += 5
-	#if buttonB.value:
-#		yPos -= 5#
-#	if buttonX.value:
-#		xPos += 5
-#	if buttonY.value:
-#		xPos -= 5
-	xPos += game_pad.analog_X * 5
-	yPos += game_pad.analog_Y * -5
-	
-	# now I do the big OwO
-	bg_sprite.x = int(xPos)
-	bg_sprite.y = int(yPos)
-	#if count % 100 == 0:
+	player.loop(gamepad)
 	
 	text_area.text = str(count)
 	#display.show(splash)
