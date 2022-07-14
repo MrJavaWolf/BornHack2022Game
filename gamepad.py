@@ -26,13 +26,13 @@ class GamePad:
 
     button_B: GamePadButton = GamePadButton()
     """Get the B button's state"""
-    
+
     button_X: GamePadButton = GamePadButton()
     """Get the X button's state"""
-    
+
     button_Y: GamePadButton = GamePadButton()
     """Get the Y button's state"""
-    
+
     analog_X: float = 0
     """A value between -1 and 1. Where 0 is in the center"""
 
@@ -41,16 +41,16 @@ class GamePad:
 
     button_A_io: DigitalInOut
     """Read the raw digital input for the button"""
-    
+
     button_B_io: DigitalInOut
     """Read the raw digital input for the button"""
 
     button_X_io: DigitalInOut
     """Read the raw digital input for the button"""
-    
+
     button_Y_io: DigitalInOut
     """Read the raw digital input for the button"""
-    
+
     analog_X_io: AnalogIn
     """Read the raw analog input"""
 
@@ -58,13 +58,13 @@ class GamePad:
     """Read the raw analog input"""
 
     def __init__(self):
-        
+
         # Setup button inputs
         self.button_A_io = DigitalInOut(BUTTON_A_PIN)
         self.button_B_io = DigitalInOut(BUTTON_B_PIN)
         self.button_X_io = DigitalInOut(BUTTON_X_PIN)
         self.button_Y_io = DigitalInOut(BUTTON_Y_PIN)
-        
+
         # Pull-up buttons
         self.button_A_io.pull = Pull.UP
         self.button_B_io.pull = Pull.UP
@@ -76,7 +76,6 @@ class GamePad:
         self.analog_Y_io = AnalogIn(ANALOG_Y_PIN)
         self.loop()
 
-
     def loop(self):
         """Call this exactly once per frame to keep the buttons states up to date"""
 
@@ -86,7 +85,7 @@ class GamePad:
         self.button_Y.loop(self.read_button_value(self.button_Y_io))
         self.analog_X = self.read_analog_value(self.analog_X_io, INVERT_ANALOG_X)
         self.analog_Y = self.read_analog_value(self.analog_Y_io, INVERT_ANALOG_Y)
-    
+
     def read_button_value(self, button):
         """Reads the buttons value"""
         # The buttons are pulled up, meaning if they are not pushed they are set to True (High)
@@ -95,30 +94,44 @@ class GamePad:
 
     def read_analog_value(self, analog, invert):
         """Reads an analog sticks value"""
-        # Normalizes the anlog value to -1 - 0 - 1 
+        # Normalizes the anlog value to -1 - 0 - 1
         value = (analog.value - 32768.0) / 32768.0
-        if invert: # Inverts the value
+        if invert:  # Inverts the value
             value *= -1
-        if -ANALOG_DEAD_ZONE < value and value < ANALOG_DEAD_ZONE: # Handles deadzone
+        if -ANALOG_DEAD_ZONE < value and value < ANALOG_DEAD_ZONE:  # Handles deadzone
             return 0
         return value
 
     def print_state(self):
         """Print the overall state of the game controller"""
-        print(json.dumps(OrderedDict({
-            'analog_X': self.analog_X,
-            'analog_Y': self.analog_Y,
-            'A':self.button_A.is_pressed,
-            'B':self.button_B.is_pressed,
-            'X':self.button_X.is_pressed,
-            'Y':self.button_Y.is_pressed})))
+        print(
+            json.dumps(
+                OrderedDict(
+                    {
+                        "analog_X": self.analog_X,
+                        "analog_Y": self.analog_Y,
+                        "A": self.button_A.is_pressed,
+                        "B": self.button_B.is_pressed,
+                        "X": self.button_X.is_pressed,
+                        "Y": self.button_Y.is_pressed,
+                    }
+                )
+            )
+        )
 
     def print_state_detailed(self):
         """Print the full state of the game controller"""
-        print(json.dumps(OrderedDict({
-            'analog_X': self.analog_X,
-            'analog_Y': self.analog_Y,
-            'A':self.button_A.__dict__,
-            'B':self.button_B.__dict__,
-            'X':self.button_X.__dict__,
-            'Y':self.button_Y.__dict__})))
+        print(
+            json.dumps(
+                OrderedDict(
+                    {
+                        "analog_X": self.analog_X,
+                        "analog_Y": self.analog_Y,
+                        "A": self.button_A.__dict__,
+                        "B": self.button_B.__dict__,
+                        "X": self.button_X.__dict__,
+                        "Y": self.button_Y.__dict__,
+                    }
+                )
+            )
+        )

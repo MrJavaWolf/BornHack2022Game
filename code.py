@@ -106,7 +106,6 @@ while True:
 	gamepad.print_state_detailed()
 	count = count + 1
 	player.loop(gamepad)
-	
 	text_area.text = str(count)
 	#display.show(splash)
 
