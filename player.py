@@ -1,8 +1,9 @@
 from gamepad import GamePad
 import displayio
+from gametime import GameTime
 
-PLAYER_MAX_SPEED = 5
-PLAYER_MAX_HEALTH = 100
+PLAYER_MAX_SPEED = 150.0
+PLAYER_MAX_HEALTH = 100.0
 
 
 class Player:
@@ -32,8 +33,9 @@ class Player:
             y=int(self.position_y),
         )
 
-    def loop(self, gamepad: GamePad):
-        self.position_x += gamepad.analog_X * PLAYER_MAX_SPEED
-        self.position_y += gamepad.analog_Y * PLAYER_MAX_SPEED
+    def loop(self, gamepad: GamePad, game_time: GameTime):
+        self.position_x += gamepad.analog_X * PLAYER_MAX_SPEED * game_time.delta_time
+        self.position_y += gamepad.analog_Y * PLAYER_MAX_SPEED * game_time.delta_time
+
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
