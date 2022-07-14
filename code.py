@@ -29,7 +29,7 @@ import pwmio
 from adafruit_display_text import label
 from adafruit_st7735r import ST7735R
 import time
-from gamecontroller import GameController
+from gamepad import GamePad
 
 from adafruit_slideshow import PlayBackOrder, SlideShow
 
@@ -60,7 +60,7 @@ bl.duty_cycle = 60000
 #print(str(board.board_id))
 #print(board.A1)
 
-game_controller = GameController()
+game_pad = GamePad()
 
 # Setup the display
 splash = displayio.Group()
@@ -79,9 +79,9 @@ splash.append(text_group1)
 splash.append(text_group2)
 display.show(splash)
 
-while not game_controller.button_A.on_press:
+while not game_pad.button_A.on_press:
     time.sleep(0.05)
-    game_controller.loop()
+    game_pad.loop()
 
 xPos = 50.0
 yPos = 50.0
@@ -109,8 +109,8 @@ display.show(splash)
 
 
 while True:
-	game_controller.loop()
-	game_controller.print_state_detailed()
+	game_pad.loop()
+	game_pad.print_state_detailed()
 	count = count + 1
 	#if buttonA.value:
 	#	yPos += 5
@@ -120,8 +120,8 @@ while True:
 #		xPos += 5
 #	if buttonY.value:
 #		xPos -= 5
-	xPos += game_controller.analog_X * 5
-	yPos += game_controller.analog_Y * -5
+	xPos += game_pad.analog_X * 5
+	yPos += game_pad.analog_Y * -5
 	
 	# now I do the big OwO
 	bg_sprite.x = int(xPos)

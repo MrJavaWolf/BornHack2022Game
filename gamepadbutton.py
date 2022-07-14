@@ -1,16 +1,17 @@
-# Used by GameController.py
+# Used by GamePad.py
 
-class GameControllerButton:
-    """Keeps track of a game controller button's state"""
-    
-    is_pressed:bool = False
+
+class GamePadButton:
+    """Keeps track of a game pads button's state"""
+
+    is_pressed: bool = False
     """Is true if the button is currently pressed down, otherwise false"""
-    
-    on_press:bool = False
+
+    on_press: bool = False
     """Is true if the button was pressed down this frame(/update/loop), otherwise false.
     Use this if you want to trigger an event when the button was pressed"""
-    
-    on_release:bool = False
+
+    on_release: bool = False
     """Is true if the button was released this frame(/update/loop), otherwise false.
     Use this if you want to trigger an event when the button was released"""
 

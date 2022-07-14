@@ -1,7 +1,7 @@
 import board
 from digitalio import DigitalInOut, Pull
 from analogio import AnalogIn
-from gamecontrollerbutton import GameControllerButton
+from gamepadbutton import GamePadButton
 import json
 from collections import OrderedDict
 
@@ -18,19 +18,19 @@ INVERT_ANALOG_X = False
 INVERT_ANALOG_Y = False
 
 
-class GameController:
-    """Keeps track of the game controller's state"""
+class GamePad:
+    """Keeps track of the game pad's state"""
 
-    button_A: GameControllerButton = GameControllerButton()
+    button_A: GamePadButton = GamePadButton()
     """Get the A button's state"""
 
-    button_B: GameControllerButton = GameControllerButton()
+    button_B: GamePadButton = GamePadButton()
     """Get the B button's state"""
     
-    button_X: GameControllerButton = GameControllerButton()
+    button_X: GamePadButton = GamePadButton()
     """Get the X button's state"""
     
-    button_Y: GameControllerButton = GameControllerButton()
+    button_Y: GamePadButton = GamePadButton()
     """Get the Y button's state"""
     
     analog_X: float = 0
@@ -76,6 +76,17 @@ class GameController:
         self.analog_Y_io = AnalogIn(ANALOG_Y_PIN)
         self.loop()
 
+
+    def loop(self):
+        """Call this exactly once per frame to keep the buttons states up to date"""
+
+        self.button_A.loop(self.read_button_value(self.button_A_io))
+        self.button_B.loop(self.read_button_value(self.button_A_io))
+        self.button_X.loop(self.read_button_value(self.button_X_io))
+        self.button_Y.loop(self.read_button_value(self.button_Y_io))
+        self.analog_X = self.read_analog_value(self.analog_X_io, INVERT_ANALOG_X)
+        self.analog_Y = self.read_analog_value(self.analog_Y_io, INVERT_ANALOG_Y)
+    
     def read_button_value(self, button):
         """Reads the buttons value"""
         # The buttons are pulled up, meaning if they are not pushed they are set to True (High)
@@ -83,6 +94,7 @@ class GameController:
         return not button.value
 
     def read_analog_value(self, analog, invert):
+        """Reads an analog sticks value"""
         # Normalizes the anlog value to -1 - 0 - 1 
         value = (analog.value - 32768.0) / 32768.0
         if invert: # Inverts the value
@@ -91,15 +103,8 @@ class GameController:
             return 0
         return value
 
-    def loop(self):
-        self.button_A.loop(self.read_button_value(self.button_A_io))
-        self.button_B.loop(self.read_button_value(self.button_A_io))
-        self.button_X.loop(self.read_button_value(self.button_X_io))
-        self.button_Y.loop(self.read_button_value(self.button_Y_io))
-        self.analog_X = self.read_analog_value(self.analog_X_io, INVERT_ANALOG_X)
-        self.analog_Y = self.read_analog_value(self.analog_Y_io, INVERT_ANALOG_Y)
-    
     def print_state(self):
+        """Print the generel state of the game controller"""
         print(json.dumps(OrderedDict({
             'analog_X': self.analog_X,
             'analog_Y': self.analog_Y,
@@ -109,6 +114,7 @@ class GameController:
             'Y':self.button_Y.is_pressed})))
 
     def print_state_detailed(self):
+        """Print the full detailed state of the game controller"""
         print(json.dumps(OrderedDict({
             'analog_X': self.analog_X,
             'analog_Y': self.analog_Y,
