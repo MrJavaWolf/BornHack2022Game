@@ -31,6 +31,7 @@ from adafruit_st7735r import ST7735R
 import time
 from gamepad import GamePad
 from player import Player
+from framecounter import FrameCounter
 
 from adafruit_slideshow import PlayBackOrder, SlideShow
 
@@ -84,31 +85,22 @@ while not gamepad.button_A.on_press:
     time.sleep(0.05)
     gamepad.loop()
 
+frame_counter = FrameCounter()
 player = Player(50,50)
 
-count = 1
 splash = displayio.Group()
-
-# Text
-text_group = displayio.Group(scale=2, x=5, y=10)
-text = str(count)
-text_area = label.Label(terminalio.FONT, text=text, color=0xFF0000)
-text_group.append(text_area)  # Subgroup for text scaling
 
 # Show on screen
 splash.append(player.sprite)
-splash.append(text_group)
+splash.append(frame_counter.sprite)
 display.show(splash)
 
 
 while True:
 	gamepad.loop()
-	gamepad.print_state_detailed()
-	count = count + 1
+	gamepad.print_state()
 	player.loop(gamepad)
-	text_area.text = str(count)
-	#display.show(splash)
-
+	frame_counter.loop()
 	time.sleep(0.01)
 
 
