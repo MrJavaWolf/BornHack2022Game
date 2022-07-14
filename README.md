@@ -9,7 +9,7 @@ Game made for the [BornHack 2022 Game On Badge](https://github.com/bornhack/badg
 
 Requirements: 
 - A `BornHack 2022 Game On Badge` 
-- The badge have to run [CircetPython](https://circuitpython.org/).
+- The badge running [CircetPython](https://circuitpython.org/).
 - An analog stick connected to your badge using pins: `A2` and `A3` 
     - Or simular that works with [AnalogIn](https://learn.adafruit.com/circuitpython-essentials/circuitpython-analog-in)
     - The pins is set in `gamepad.py`
