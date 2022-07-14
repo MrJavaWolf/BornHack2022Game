@@ -1,4 +1,3 @@
-import gamepad
 from gamepad import GamePad
 import displayio
 
