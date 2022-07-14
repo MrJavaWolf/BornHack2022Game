@@ -2,40 +2,40 @@
 
 
 class GamePadButton:
-    """Keeps track of a game pads button's state"""
+    """Keeps track of a button's state"""
 
     is_pressed: bool = False
     """Is true if the button is currently pressed down, otherwise false"""
 
     on_press: bool = False
-    """Is true if the button was pressed down this frame(/update/loop), otherwise false.
-    Use this if you want to trigger an event when the button was pressed"""
+    """Is true if the button is pressed down this frame(/update/loop), otherwise false.
+    Use this if you want to trigger an event when the button is pressed down"""
 
     on_release: bool = False
-    """Is true if the button was released this frame(/update/loop), otherwise false.
-    Use this if you want to trigger an event when the button was released"""
+    """Is true if the button is released this frame(/update/loop), otherwise false.
+    Use this if you want to trigger an event when the button is released"""
 
-    def loop(self, isPressedDown: bool):
+    def loop(self, is_pressed_down: bool):
         """Update the buttons state"""
 
-        # Was not pressed down before, is pressed down now
-        if not self.is_pressed and isPressedDown:
+        # The button is pressed down
+        if not self.is_pressed and is_pressed_down:
             self.on_press = True
             self.on_release = False
 
-        # Is keeping it pressed down
-        elif self.is_pressed and isPressedDown:
+        # The button is kept pressed down
+        elif self.is_pressed and is_pressed_down:
             self.on_press = False
             self.on_release = False
 
-        # Releases the button
-        elif self.is_pressed and not isPressedDown:
+        # The button is released
+        elif self.is_pressed and not is_pressed_down:
             self.on_press = False
             self.on_release = True
 
-        # Was not pressed and is still not pressed
-        elif not self.is_pressed and not isPressedDown:
+        # The button is not pressed down
+        elif not self.is_pressed and not is_pressed_down:
             self.on_press = False
             self.on_release = False
 
-        self.is_pressed = isPressedDown
+        self.is_pressed = is_pressed_down

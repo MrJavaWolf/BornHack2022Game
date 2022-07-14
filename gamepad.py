@@ -104,7 +104,7 @@ class GamePad:
         return value
 
     def print_state(self):
-        """Print the generel state of the game controller"""
+        """Print the overall state of the game controller"""
         print(json.dumps(OrderedDict({
             'analog_X': self.analog_X,
             'analog_Y': self.analog_Y,
@@ -114,7 +114,7 @@ class GamePad:
             'Y':self.button_Y.is_pressed})))
 
     def print_state_detailed(self):
-        """Print the full detailed state of the game controller"""
+        """Print the full state of the game controller"""
         print(json.dumps(OrderedDict({
             'analog_X': self.analog_X,
             'analog_Y': self.analog_Y,
