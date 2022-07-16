@@ -8,7 +8,6 @@ import displayio
 
 TRANSPARENT_COLOR = 0xFF00FF
 
-
 def import_tile_grid(
     image_path,
     tile_pixel_width,

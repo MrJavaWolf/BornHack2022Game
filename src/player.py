@@ -23,7 +23,7 @@ class Player:
         self.player_sprite = import_tile_grid(
             image_path="images/lizard.bmp", tile_pixel_width=16, tile_pixel_height=22
         )
-        self.sprite = displayio.Group(scale = 2)
+        self.sprite = displayio.Group(scale = 1)
         self.sprite.append(self.player_sprite)
         self.idle_animation = TileAnimation(self.player_sprite, [0, 1], 0.5)
         self.run_animation = TileAnimation(self.player_sprite, [4, 7], 0.15)

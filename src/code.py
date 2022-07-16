@@ -86,9 +86,9 @@ game_world = GameWorld()
 splash = displayio.Group()
 
 # Show on screen
+splash.append(game_world.sprite)
 splash.append(player.sprite)
 splash.append(frame_counter.sprite)
-#splash.append(game_world.tile_grid)
 display.show(splash)
 
 while True:
