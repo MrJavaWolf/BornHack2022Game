@@ -30,6 +30,8 @@ from gamepad import GamePad
 from gametime import GameTime
 from player import Player
 from framecounter import FrameCounter
+from gameworld import GameWorld
+
 
 # Usefull board and pin debugging
 # import microcontroller
@@ -73,21 +75,21 @@ splash.append(text_group2)
 display.show(splash)
 
 gamepad = GamePad()
-while not gamepad.button_A.on_press:
-    time.sleep(0.05)
-    gamepad.loop()
+#while not gamepad.button_A.on_press:
+#    time.sleep(0.05)
+#    gamepad.loop()
 
 frame_counter = FrameCounter()
-player = Player(50, 50)
+player = Player(10, 50)
 game_time = GameTime()
-
+game_world = GameWorld()
 splash = displayio.Group()
 
 # Show on screen
 splash.append(player.sprite)
 splash.append(frame_counter.sprite)
+#splash.append(game_world.tile_grid)
 display.show(splash)
-
 
 while True:
     game_time.loop()
@@ -97,6 +99,7 @@ while True:
     gamepad.loop()
     # gamepad.print_state()
     player.loop(gamepad, game_time)
+    game_world.loop(game_time)
     time.sleep(0.01)
 
 
