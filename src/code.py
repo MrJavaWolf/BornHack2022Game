@@ -32,6 +32,11 @@ from player import Player
 from framecounter import FrameCounter
 from gameworld import GameWorld
 
+SHOW_FPS = True
+SHOW_SPLASHSCREEN = True
+
+SCREEN_WIDTH = 128
+SCREEN_HEIGHT = 160
 
 # Usefull board and pin debugging
 # import microcontroller
@@ -75,9 +80,10 @@ splash.append(text_group2)
 display.show(splash)
 
 gamepad = GamePad()
-#while not gamepad.button_A.on_press:
-#    time.sleep(0.05)
-#    gamepad.loop()
+if SHOW_SPLASHSCREEN:
+    while not gamepad.button_A.on_press:
+        time.sleep(0.05)
+        gamepad.loop()
 
 frame_counter = FrameCounter()
 player = Player(10, 50)
@@ -86,9 +92,14 @@ game_world = GameWorld()
 splash = displayio.Group()
 
 # Show on screen
-splash.append(game_world.sprite)
-splash.append(player.sprite)
-splash.append(frame_counter.sprite)
+world_sprite = displayio.Group()
+world_sprite.append(game_world.sprite)
+world_sprite.append(player.sprite)
+splash.append(world_sprite)
+
+
+if SHOW_FPS:
+    splash.append(frame_counter.sprite)
 display.show(splash)
 
 while True:
@@ -98,10 +109,12 @@ while True:
     # frame_counter.print_state()
     gamepad.loop()
     # gamepad.print_state()
-    player.loop(gamepad, game_time)
-    game_world.loop(game_time)
+    player.loop(gamepad, game_time, game_world)
+    game_world.loop(game_time, gamepad)
     time.sleep(0.01)
 
+    world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))
+    world_sprite.y = int(-SCREEN_HEIGHT * int(player.position_y / SCREEN_HEIGHT))
 
 while True:
     pass
