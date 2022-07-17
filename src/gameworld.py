@@ -1,5 +1,4 @@
 import displayio
-import displayio
 from gamepad import GamePad
 from gametime import GameTime
 from tileanimation import TileAnimation
@@ -10,7 +9,7 @@ class GameWorld:
     """Contains the world.
     The world is build from tiles"""
 
-    walkable_tiles = [-1, 8, 22]
+    walkable_tiles = [-1, 8, 22, 48, 49, 50, 51, 60, 61, 62, 63]
     tile_pixel_width: int
     tile_pixel_height: int
 
