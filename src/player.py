@@ -23,7 +23,7 @@ class Player:
 
     def __init__(self, position_x: float, position_y: float):
         self.player_sprite = import_tile_grid(
-            image_path="images/lizard.bmp", tile_pixel_width=16, tile_pixel_height=22
+            image_path="/images/lizard.bmp", tile_pixel_width=16, tile_pixel_height=22
         )
         self.player_sprite.x = -8
         self.player_sprite.y = -15

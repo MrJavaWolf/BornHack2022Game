@@ -31,6 +31,8 @@ from gametime import GameTime
 from player import Player
 from framecounter import FrameCounter
 from gameworld import GameWorld
+import adafruit_imageload
+import gc
 
 SHOW_FPS = True
 SHOW_SPLASHSCREEN = True
@@ -85,10 +87,13 @@ if SHOW_SPLASHSCREEN:
         time.sleep(0.05)
         gamepad.loop()
 
+text_area2.text="Loading..."
+
+
 frame_counter = FrameCounter()
-player = Player(10, 50)
-game_time = GameTime()
 game_world = GameWorld()
+player = Player(64, 64)
+game_time = GameTime()
 splash = displayio.Group()
 
 # Show on screen
@@ -101,6 +106,10 @@ splash.append(world_sprite)
 if SHOW_FPS:
     splash.append(frame_counter.sprite)
 display.show(splash)
+
+
+start_mem = gc.mem_free()
+print("Available memory: {} bytes".format(start_mem))
 
 while True:
     game_time.loop()

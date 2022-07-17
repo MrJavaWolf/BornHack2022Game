@@ -5,6 +5,7 @@
 
 import adafruit_imageload
 import displayio
+import gc
 
 TRANSPARENT_COLOR = 0xFF00FF
 
@@ -33,9 +34,8 @@ def import_tile_grid(
         transparent_color: Make a specific color in your sprite sheet transparent. Usefull for characters and props. Set to None to not make any colors transparent
     """
     # Loads the image
+    print("Loads image: {}".format(image_path))
     bitmap, palette = adafruit_imageload.load(image_path)
-
-    # Marks colors which are 'transparent_color' actually transparent
     for i in range(len(palette)):
         if palette[i] == transparent_color:
             palette.make_transparent(i)
