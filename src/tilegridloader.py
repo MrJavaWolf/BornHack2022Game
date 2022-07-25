@@ -5,7 +5,6 @@
 
 import adafruit_imageload
 import displayio
-import gc
 
 TRANSPARENT_COLOR = 0xFF00FF
 

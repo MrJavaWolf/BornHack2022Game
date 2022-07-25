@@ -31,6 +31,7 @@ from gametime import GameTime
 from player import Player
 from framecounter import FrameCounter
 from gameworld import GameWorld
+from punchbagenemy import PunchBagEnemy
 import adafruit_imageload
 import gc
 
@@ -55,8 +56,9 @@ display_bus = displayio.FourWire(
     spi, command=tft_dc, chip_select=tft_cs, reset=board.D0
 )
 display = ST7735R(
-    display_bus, width=128, height=160, rotation=0, bgr=True, colstart=2, rowstart=1
+    display_bus, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, rotation=0, bgr=True, colstart=2, rowstart=1
 )
+
 
 # bl = digitalio.DigitalInOut(board.PWM0)
 # bl.direction = digitalio.Direction.OUTPUT
@@ -88,17 +90,20 @@ if SHOW_SPLASHSCREEN:
         gamepad.loop()
 
 text_area2.text="Loading..."
-
+display.refresh()
+display.auto_refresh = False
 
 frame_counter = FrameCounter()
 game_world = GameWorld()
 player = Player(64, 64)
+punch_bag_enemy = PunchBagEnemy(86, 64)
 game_time = GameTime()
 splash = displayio.Group()
 
 # Show on screen
 world_sprite = displayio.Group()
 world_sprite.append(game_world.sprite)
+world_sprite.append(punch_bag_enemy.sprite)
 world_sprite.append(player.sprite)
 splash.append(world_sprite)
 
@@ -119,11 +124,13 @@ while True:
     gamepad.loop()
     # gamepad.print_state()
     player.loop(gamepad, game_time, game_world)
+    punch_bag_enemy.loop(game_time, game_world)
     game_world.loop(game_time, gamepad)
-    time.sleep(0.01)
+    #time.sleep(0.01)
 
     world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))
     world_sprite.y = int(-SCREEN_HEIGHT * int(player.position_y / SCREEN_HEIGHT))
+    #world_sprite.x = int(-player.position_x + SCREEN_WIDTH / 2)
+    #world_sprite.y = int(-player.position_y + SCREEN_HEIGHT / 2)
+    display.refresh()
 
-while True:
-    pass

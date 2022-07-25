@@ -9,7 +9,7 @@ DEFAULT_TILE_MAP = "/map/bornhack.csv"
 DEFAULT_SPRITE_SHEET = "/images/mystic-woods.bmp"
 DEFAULT_TILE_PIXEL_WIDTH = 16
 DEFAULT_TILE_PIXEL_HEIGHT = 16
-DEFAULT_WALKABLE_TILES = [-1, 8, 52, 53, 54, 55, 18, 22, 23, 24, 38, 128, 129, 130]
+DEFAULT_WALKABLE_TILES = [-1, 8, 9, 52, 53, 54, 55, 18, 22, 23, 24, 25, 38, 128, 129, 130]
 
 class GameWorld:
     """Contains the world.

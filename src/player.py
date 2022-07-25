@@ -1,78 +1,200 @@
-from math import fabs
+import math
 from gamepad import GamePad
 import displayio
 from gametime import GameTime
 from gameworld import GameWorld
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
+import Tween.Tween
 
 PLAYER_MAX_SPEED = 50.0
 PLAYER_MAX_HEALTH = 100.0
+DEBUG_SHOW_PLAYER_POSITION = False # Shows the players exact position with a small dot
+
+# Dash
+PLAYER_DASH_SPEED = 275
+PLAYER_DASH_DURATION = 0.15
+PLAYER_DASH_RECOVERY_TIME = 0.2
+
+# Attack
+PLAYER_ATTACK_DURATION = 0.1
+PLAYER_ATTACK_RECOVERY_TIME = 0.1
+PLAYER_ATTACK_COOLDOWN = 0.2
+
+# Visuals
+PLAYER_SPRITE_TYPE = 7
+NUMBER_OF_SPRITES = 9
+SPRITE_OFFSET = PLAYER_SPRITE_TYPE * NUMBER_OF_SPRITES
+
+PLAYER_SPRITE = "/images/characters.bmp"
+PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
+PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
+PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0 + SPRITE_OFFSET, 1 + SPRITE_OFFSET]}
+PLAYER_RUN_ANIMATION = {"fps": 0.15, "frames": [4 + SPRITE_OFFSET, 7 + SPRITE_OFFSET]}
+
 
 
 class Player:
 
-    health: float
+    health: float = 50
     """The amount of health the player currently has"""
 
-    position_x: float
+    position_x: float = 0
     """The players X position"""
 
-    position_y: float
+    position_y: float = 0
     """The players Y position"""
 
+    # Dashing
+    __is_dashing: bool = False
+    __dash_start_time: float = 0
+    __dash_direction_x: float = 1
+    __dash_direction_y: float = 0
+    
+    # Attacking
+    __is_attacking: bool = False
+    __attack_start_time: float = 0
+
     def __init__(self, position_x: float, position_y: float):
-        self.player_sprite = import_tile_grid(
-            image_path="/images/lizard.bmp", tile_pixel_width=16, tile_pixel_height=22
-        )
-        self.player_sprite.x = -8
-        self.player_sprite.y = -15
-        self.sprite = displayio.Group(scale=1)
-        self.sprite.append(self.player_sprite)
-        self.idle_animation = TileAnimation(self.player_sprite, [0, 1], 0.5)
-        self.run_animation = TileAnimation(self.player_sprite, [4, 7], 0.15)
+  
+        # Setup        
         self.health = PLAYER_MAX_HEALTH
         self.position_x = position_x
         self.position_y = position_y
+        
+        # Visuals
+        self.character_sprite = import_tile_grid(
+            image_path = PLAYER_SPRITE, 
+            tile_pixel_width = PLAYER_SPRITE_TILE_SIZE["width"], 
+            tile_pixel_height = PLAYER_SPRITE_TILE_SIZE["height"]
+        )
+        self.character_sprite.x = PLAYER_SPRITE_OFFSET["x"]
+        self.character_sprite.y = PLAYER_SPRITE_OFFSET["y"]
+        self.idle_animation = TileAnimation(self.character_sprite, PLAYER_IDLE_ANIMATION["frames"], PLAYER_IDLE_ANIMATION["fps"])
+        self.run_animation = TileAnimation(self.character_sprite, PLAYER_RUN_ANIMATION["frames"], PLAYER_RUN_ANIMATION["fps"])
+        self.sprite = displayio.Group(scale=1)
+        self.sprite.append(self.character_sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
 
-        ## Debug player center dot
-        #color_bitmap = displayio.Bitmap(1, 1, 1)
-        #color_palette = displayio.Palette(1)
-        #color_palette[0] = 0xFF0000
-        #self.player_pos = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
-        #self.sprite.append(self.player_pos)
+        # Visuals - Attack
+        self.player_attack_sprite = import_tile_grid("/images/attack-slash.bmp", 36, 16)
+
+        # Debug show player center dot
+        if DEBUG_SHOW_PLAYER_POSITION:
+            color_bitmap = displayio.Bitmap(1, 1, 1)
+            color_palette = displayio.Palette(1)
+            color_palette[0] = 0xFF0000
+            self.character_position = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
+            self.sprite.append(self.character_position)
 
     def loop(self, gamepad: GamePad, game_time: GameTime, game_world: GameWorld):
 
-        if gamepad.analog_X == 0 and gamepad.analog_Y == 0:
+        # Dash
+        if gamepad.button_B.on_press and not self.__is_dashing and not self.__is_attacking:
+            self.start_dash(gamepad, game_time)
+        elif self.__is_dashing:
+            self.dash_loop(game_world, game_time)
+
+        # Attack
+        elif gamepad.button_X.on_press and not self.__is_attacking and game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME+ PLAYER_ATTACK_COOLDOWN:
+            self.start_attack(gamepad, game_time)
+        elif self.__is_attacking:
+            self.attack_loop(game_world, game_time)
+
+        # Idle
+        elif gamepad.analog_X == 0 and gamepad.analog_Y == 0:
             self.idle_animation.loop(game_time)
+
+        # Run
         else:
-            new_x_position = (
-                self.position_x
-                + gamepad.analog_X * PLAYER_MAX_SPEED * game_time.delta_time
-            )
-            new_y_position = (
-                self.position_y
-                + gamepad.analog_Y * PLAYER_MAX_SPEED * game_time.delta_time
-            )
-            if new_y_position < 0:
-                new_y_position = 0
-            if new_x_position < 0:
-                new_x_position = 0
-            if game_world.is_walkable(new_x_position, new_y_position):
-                self.position_x = new_x_position
-                self.position_y = new_y_position
-            elif game_world.is_walkable(self.position_x, new_y_position):
-                self.position_y = new_y_position
-            elif game_world.is_walkable(new_x_position, self.position_y):
-                self.position_x = new_x_position
-            
-            self.sprite.x = int(self.position_x)
-            self.sprite.y = int(self.position_y)
-            
+            self.run(gamepad, game_time, game_world)
 
-            self.run_animation.loop(game_time)
+### Attacking
+    def start_attack(self, gamepad: GamePad, game_time: GameTime):
+        self.__is_attacking = True
+        self.__attack_start_time = game_time.total_time
+        self.character_sprite[0] = 7 + SPRITE_OFFSET
+        self.player_attack_sprite[0] = 0
+        self.player_attack_sprite.flip_x = self.character_sprite.flip_x
+        self.player_attack_sprite.y = -5
+        if self.player_attack_sprite.flip_x:
+            self.player_attack_sprite.x = -20
+        else:
+            self.player_attack_sprite.x = -15
+        self.sprite.append(self.player_attack_sprite)
 
-            self.player_sprite.flip_x = True if gamepad.analog_X < 0 else False
+    def attack_loop(self, gamepad: GamePad, game_time: GameTime):
+        if game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME:
+            self.sprite.remove(self.player_attack_sprite)
+            self.__is_attacking = False
+            return
+
+        if game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION:
+            self.player_attack_sprite[0] = 2
+            return
+
+        elif game_time.total_time - self.__attack_start_time > 0.05:
+            self.player_attack_sprite[0] = 1
+            return
+
+### Dashing
+    def start_dash(self, gamepad: GamePad, game_time: GameTime):
+        self.__dash_start_time = game_time.total_time
+        self.__is_dashing = True
+        self.character_sprite[0] = 5 + SPRITE_OFFSET
+        if gamepad.analog_X == 0 and gamepad.analog_Y == 0:
+            self.__dash_direction_x = -1 if self.character_sprite.flip_x else 1
+            self.__dash_direction_y = 0
+        else:
+            length = math.sqrt(gamepad.analog_X * gamepad.analog_X + gamepad.analog_Y * gamepad.analog_Y)
+            self.__dash_direction_x = gamepad.analog_X / length
+            self.__dash_direction_y = gamepad.analog_Y / length
+
+    def dash_loop(self, game_world: GameWorld, game_time: GameTime):
+        if game_time.total_time - self.__dash_start_time > PLAYER_DASH_DURATION + PLAYER_DASH_RECOVERY_TIME:
+            self.__is_dashing = False
+            return
+        
+        if game_time.total_time - self.__dash_start_time < PLAYER_DASH_DURATION:
+            progress = (game_time.total_time - self.__dash_start_time) / PLAYER_DASH_DURATION
+            tween_value = Tween.Tween.sineout(progress)
+            speed = tween_value * PLAYER_DASH_SPEED
+            new_x_position = self.position_x + self.__dash_direction_x * speed * game_time.delta_time        
+            new_y_position = self.position_y + self.__dash_direction_y * speed * game_time.delta_time
+            self.move_to_position(new_x_position, new_y_position, game_world)
+        elif game_time.total_time - self.__dash_start_time < PLAYER_DASH_DURATION + 0.1:
+            self.character_sprite[0] = 2 + SPRITE_OFFSET
+        else:
+            self.character_sprite[0] = 3 + SPRITE_OFFSET
+
+### Running
+    def run(self, gamepad: GamePad, game_time: GameTime, game_world: GameWorld):
+        new_x_position = (
+            self.position_x
+            + gamepad.analog_X * PLAYER_MAX_SPEED * game_time.delta_time
+        )
+        new_y_position = (
+            self.position_y
+            + gamepad.analog_Y * PLAYER_MAX_SPEED * game_time.delta_time
+        )
+        self.move_to_position(new_x_position, new_y_position, game_world)
+        self.character_sprite.flip_x = True if gamepad.analog_X < 0 else False
+        self.run_animation.loop(game_time)
+
+### Utility
+    def move_to_position(self, x_position: float, y_position: float, game_world: GameWorld):
+        if y_position < 0:
+            y_position = 0
+        if x_position < 0:
+            x_position = 0
+        if game_world.is_walkable(x_position, y_position):
+            self.position_x = x_position
+            self.position_y = y_position
+        elif game_world.is_walkable(self.position_x, y_position):
+            self.position_y = y_position
+        elif game_world.is_walkable(x_position, self.position_y):
+            self.position_x = x_position
+
+        self.sprite.x = int(self.position_x)
+        self.sprite.y = int(self.position_y)

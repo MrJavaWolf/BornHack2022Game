@@ -5,7 +5,7 @@ import time
 import json
 from collections import OrderedDict
 
-SHOW_FRAME_COUNT = True
+SHOW_FRAME_COUNT = False
 SHOW_FRAMES_PER_SECOND = True
 FRAMES_PER_SECOND_UPDATE_SPEED = 0.1
 
@@ -29,17 +29,21 @@ class FrameCounter:
         self.sprite = displayio.Group(scale=1, x=1, y=3)
 
         # Total frames
+        y_offset=0
         self.total_frames_label = label.Label(
             terminalio.FONT, text=str(self.total_frames), color=0xFF0000
         )
-        self.sprite.append(self.total_frames_label)
+        if SHOW_FRAME_COUNT:
+            self.sprite.append(self.total_frames_label)
+            y_offset += 10
 
         # FPS
         self.frames_per_second_time = time.monotonic()
         self.frames_per_second_label = label.Label(
-            terminalio.FONT, y=10, text=str(int(self.frames_per_second)), color=0xFF0000
+            terminalio.FONT, y=y_offset, text=str(int(self.frames_per_second)), color=0xFF0000
         )
-        self.sprite.append(self.frames_per_second_label)
+        if SHOW_FRAMES_PER_SECOND:
+            self.sprite.append(self.frames_per_second_label)
 
     def loop(self):
         # Total frames
