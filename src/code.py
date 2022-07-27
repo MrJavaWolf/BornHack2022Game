@@ -123,8 +123,8 @@ while True:
     # frame_counter.print_state()
     gamepad.loop()
     # gamepad.print_state()
-    player.loop(gamepad, game_time, game_world)
-    npc_manager.loop(game_time, game_world)
+    player.loop(gamepad, game_time, game_world, npc_manager)
+    npc_manager.loop(game_time, game_world, player)
     game_world.loop()
     #time.sleep(0.01)
 

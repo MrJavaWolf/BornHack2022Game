@@ -6,6 +6,7 @@ from gameworld import GameWorld
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
 import Tween.Tween
+import npcmanager
 
 # Visuals
 PLAYER_SPRITE_TYPE = 3
@@ -31,7 +32,8 @@ PLAYER_DASH_RECOVERY_TIME = 0.2
 PLAYER_ATTACK_DURATION = 0.1
 PLAYER_ATTACK_RECOVERY_TIME = 0.1
 PLAYER_ATTACK_COOLDOWN = 0.2
-
+PLAYER_ATTACK_DAMAGE = 5
+PLAYER_ATTACK_RANGE = 25
 
 class Player:
 
@@ -87,7 +89,7 @@ class Player:
             self.character_position = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
             self.sprite.append(self.character_position)
 
-    def loop(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld):
+    def loop(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld, npc_manager: npcmanager.NpcManager):
 
         # Dash
         if gamepad.button_B.on_press and not self.__is_dashing and not self.__is_attacking:
@@ -97,7 +99,7 @@ class Player:
 
         # Attack
         elif gamepad.button_X.on_press and not self.__is_attacking and game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME+ PLAYER_ATTACK_COOLDOWN:
-            self.start_attack(gamepad, game_time)
+            self.start_attack(gamepad, game_time, npc_manager)
         elif self.__is_attacking:
             self.attack_loop(game_world, game_time)
 
@@ -110,13 +112,23 @@ class Player:
             self.run(gamepad, game_time, game_world)
 
 ### Attacking
-    def start_attack(self, gamepad: Gamepad, game_time: GameTime):
+    def start_attack(self, gamepad: Gamepad, game_time: GameTime, npc_manager: npcmanager.NpcManager):
+        # state
         self.__is_attacking = True
         self.__attack_start_time = game_time.total_time
+
+        # Deal damange to enemies
+        damageable_npcs = npc_manager.get_damageable_npcs()
+        for damageable_npc in damageable_npcs:
+            if self.can_hit(gamepad, damageable_npc.position_x,damageable_npc.position_y):
+                damageable_npc.take_damage(PLAYER_ATTACK_DAMAGE, game_time)
+        
+        # Attack sprite
         self.character_sprite[0] = 7 + SPRITE_INDEX_OFFSET
         self.player_attack_sprite[0] = 0
         self.player_attack_sprite.flip_x = self.character_sprite.flip_x
-        self.player_attack_sprite.y = -5
+        self.player_attack_sprite.flip_y = True if gamepad.analog_Y < 0 else False 
+        self.player_attack_sprite.y = -15 if gamepad.analog_Y < 0 else -10
         if self.player_attack_sprite.flip_x:
             self.player_attack_sprite.x = -20
         else:
@@ -136,6 +148,10 @@ class Player:
         elif game_time.total_time - self.__attack_start_time > 0.05:
             self.player_attack_sprite[0] = 1
             return
+
+    def can_hit(self, gamepad: Gamepad, position_x: float, position_y: float):
+        square_dist = (self.position_x - position_x) ** 2 + (self.position_y - position_y) ** 2
+        return square_dist <= PLAYER_ATTACK_RANGE ** 2
 
 ### Dashing
     def start_dash(self, gamepad: Gamepad, game_time: GameTime):

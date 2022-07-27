@@ -2,7 +2,7 @@ import displayio
 from gametime import GameTime
 from gameworld import GameWorld
 from tileanimation import TileAnimation
-from tilegridloader import import_tile_grid
+from tilegridloader import import_tile_grid, TRANSPARENT_COLOR
 
 ENEMY_MAX_SPEED = 50.0
 ENEMY_MAX_HEALTH = 100.0
@@ -16,7 +16,13 @@ ENEMY_SPRITE_TILE_SIZE = {"width": 32, "height": 36}
 ENEMY_IDLE_ANIMATION = {"fps": 0.45, "frames": [1 + ENEMY_SPRITE_TYPE * 8, 2 + ENEMY_SPRITE_TYPE * 8]}
 ENEMY_RUN_ANIMATION = {"fps": 0.15, "frames": [4, 7]}
 
+# Take damange
+TAKE_DAMAGE_WHITE_TIME = 0.2
+
 class PunchBagEnemy:
+
+    despawn: bool = False
+    take_damanage_time: float = 0
 
     def __init__(self, position_x: float, position_y: float):
         # Setup        
@@ -39,6 +45,13 @@ class PunchBagEnemy:
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
         self.character_sprite.flip_x = True
+        self.original_palette =  self.character_sprite.pixel_shader
+        self.take_damange_palette = displayio.Palette(len(self.character_sprite.pixel_shader))
+        for i, color in enumerate(self.character_sprite.pixel_shader):
+            if color != TRANSPARENT_COLOR:
+                self.take_damange_palette[i] = 0xFFFFFF
+            else:
+                self.take_damange_palette.make_transparent(i)
 
         # Debug show enemy center dot
         if DEBUG_SHOW_ENEMY_POSITION:
@@ -50,3 +63,14 @@ class PunchBagEnemy:
     
     def loop(self, game_time: GameTime, game_world: GameWorld):
         self.idle_animation.loop(game_time)
+        if game_time.total_time - self.take_damanage_time > TAKE_DAMAGE_WHITE_TIME:
+            self.character_sprite.pixel_shader = self.original_palette
+
+
+    def take_damage(self, amount: float, game_time: GameTime):
+        self.health -= amount
+        if self.health <= 0:
+            self.despawn = True
+        else:
+            self.take_damanage_time = game_time.total_time
+            self.character_sprite.pixel_shader = self.take_damange_palette
