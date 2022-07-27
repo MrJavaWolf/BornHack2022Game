@@ -9,7 +9,7 @@ ENEMY_MAX_HEALTH = 100.0
 DEBUG_SHOW_ENEMY_POSITION = False # Shows the enemies exact position with a small dot
 
 # Visuals
-ENEMY_SPRITE = "/images/big-enemies.bmp"
+ENEMY_SPRITE = "/game_data/big-enemies.bmp"
 ENEMY_SPRITE_TYPE = 0
 ENEMY_SPRITE_OFFSET = {"x": -16, "y": -26}
 ENEMY_SPRITE_TILE_SIZE = {"width": 32, "height": 36}

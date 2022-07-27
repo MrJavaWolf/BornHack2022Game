@@ -22,11 +22,11 @@ PLAYER_ATTACK_RECOVERY_TIME = 0.1
 PLAYER_ATTACK_COOLDOWN = 0.2
 
 # Visuals
-PLAYER_SPRITE_TYPE = 7
+PLAYER_SPRITE_TYPE = 3
 NUMBER_OF_SPRITES = 9
 SPRITE_OFFSET = PLAYER_SPRITE_TYPE * NUMBER_OF_SPRITES
 
-PLAYER_SPRITE = "/images/characters.bmp"
+PLAYER_SPRITE = "/game_data/characters.bmp"
 PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
 PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
 PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0 + SPRITE_OFFSET, 1 + SPRITE_OFFSET]}
@@ -78,7 +78,7 @@ class Player:
         self.sprite.y = int(self.position_y)
 
         # Visuals - Attack
-        self.player_attack_sprite = import_tile_grid("/images/attack-slash.bmp", 36, 16)
+        self.player_attack_sprite = import_tile_grid("/game_data/attack-slash.bmp", 36, 16)
 
         # Debug show player center dot
         if DEBUG_SHOW_PLAYER_POSITION:
