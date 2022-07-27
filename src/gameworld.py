@@ -1,6 +1,4 @@
 import displayio
-from gamepad import GamePad
-from gametime import GameTime
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
 
@@ -97,7 +95,7 @@ class GameWorld:
         return self.world_map[lookup_index]
 
 
-    def loop(self, game_time: GameTime, gamepad: GamePad):
+    def loop(self):
 
 
         pass

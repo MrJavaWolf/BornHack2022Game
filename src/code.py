@@ -26,12 +26,12 @@ import pwmio
 from adafruit_display_text import label
 from adafruit_st7735r import ST7735R
 import time
-from gamepad import GamePad
+from gamepad import Gamepad
 from gametime import GameTime
+from gameworld import GameWorld
 from player import Player
 from framecounter import FrameCounter
-from gameworld import GameWorld
-from punchbagenemy import PunchBagEnemy
+from npcmanager import NpcManager 
 import adafruit_imageload
 import gc
 
@@ -83,7 +83,7 @@ splash.append(text_group1)
 splash.append(text_group2)
 display.show(splash)
 
-gamepad = GamePad()
+gamepad = Gamepad()
 if SHOW_SPLASHSCREEN:
     while not gamepad.button_A.on_press:
         time.sleep(0.05)
@@ -96,14 +96,14 @@ display.auto_refresh = False
 frame_counter = FrameCounter()
 game_world = GameWorld()
 player = Player(64, 64)
-punch_bag_enemy = PunchBagEnemy(86, 64)
 game_time = GameTime()
+npc_manager = NpcManager()
 splash = displayio.Group()
 
 # Show on screen
 world_sprite = displayio.Group()
 world_sprite.append(game_world.sprite)
-world_sprite.append(punch_bag_enemy.sprite)
+world_sprite.append(npc_manager.sprite)
 world_sprite.append(player.sprite)
 splash.append(world_sprite)
 
@@ -124,8 +124,8 @@ while True:
     gamepad.loop()
     # gamepad.print_state()
     player.loop(gamepad, game_time, game_world)
-    punch_bag_enemy.loop(game_time, game_world)
-    game_world.loop(game_time, gamepad)
+    npc_manager.loop(game_time, game_world)
+    game_world.loop()
     #time.sleep(0.01)
 
     world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))

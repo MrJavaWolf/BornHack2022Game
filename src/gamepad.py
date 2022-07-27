@@ -1,7 +1,7 @@
 import board
 from digitalio import DigitalInOut, Pull
 from analogio import AnalogIn
-from gamepadbutton import GamePadButton
+from gamepadbutton import GamepadButton
 import json
 from collections import OrderedDict
 
@@ -18,19 +18,19 @@ INVERT_ANALOG_X = False
 INVERT_ANALOG_Y = True
 
 
-class GamePad:
+class Gamepad:
     """Keeps track of the game pad's state"""
 
-    button_A: GamePadButton = GamePadButton()
+    button_A: GamepadButton = GamepadButton()
     """Get the A button's state"""
 
-    button_B: GamePadButton = GamePadButton()
+    button_B: GamepadButton = GamepadButton()
     """Get the B button's state"""
 
-    button_X: GamePadButton = GamePadButton()
+    button_X: GamepadButton = GamepadButton()
     """Get the X button's state"""
 
-    button_Y: GamePadButton = GamePadButton()
+    button_Y: GamepadButton = GamepadButton()
     """Get the Y button's state"""
 
     analog_X: float = 0

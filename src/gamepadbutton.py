@@ -1,7 +1,7 @@
 # Used by GamePad.py
 
 
-class GamePadButton:
+class GamepadButton:
     """Keeps track of a button's state"""
 
     is_pressed: bool = False

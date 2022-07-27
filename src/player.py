@@ -1,5 +1,5 @@
 import math
-from gamepad import GamePad
+from gamepad import Gamepad
 import displayio
 from gametime import GameTime
 from gameworld import GameWorld
@@ -7,6 +7,17 @@ from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
 import Tween.Tween
 
+# Visuals
+PLAYER_SPRITE_TYPE = 3
+NUMBER_OF_SPRITES = 9
+SPRITE_INDEX_OFFSET = PLAYER_SPRITE_TYPE * NUMBER_OF_SPRITES
+PLAYER_SPRITE = "/game_data/characters.bmp"
+PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
+PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
+PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0 + SPRITE_INDEX_OFFSET, 1 + SPRITE_INDEX_OFFSET]}
+PLAYER_RUN_ANIMATION = {"fps": 0.15, "frames": [4 + SPRITE_INDEX_OFFSET, 7 + SPRITE_INDEX_OFFSET]}
+
+# Generel 
 PLAYER_MAX_SPEED = 50.0
 PLAYER_MAX_HEALTH = 100.0
 DEBUG_SHOW_PLAYER_POSITION = False # Shows the players exact position with a small dot
@@ -20,18 +31,6 @@ PLAYER_DASH_RECOVERY_TIME = 0.2
 PLAYER_ATTACK_DURATION = 0.1
 PLAYER_ATTACK_RECOVERY_TIME = 0.1
 PLAYER_ATTACK_COOLDOWN = 0.2
-
-# Visuals
-PLAYER_SPRITE_TYPE = 3
-NUMBER_OF_SPRITES = 9
-SPRITE_OFFSET = PLAYER_SPRITE_TYPE * NUMBER_OF_SPRITES
-
-PLAYER_SPRITE = "/game_data/characters.bmp"
-PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
-PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
-PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0 + SPRITE_OFFSET, 1 + SPRITE_OFFSET]}
-PLAYER_RUN_ANIMATION = {"fps": 0.15, "frames": [4 + SPRITE_OFFSET, 7 + SPRITE_OFFSET]}
-
 
 
 class Player:
@@ -88,7 +87,7 @@ class Player:
             self.character_position = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
             self.sprite.append(self.character_position)
 
-    def loop(self, gamepad: GamePad, game_time: GameTime, game_world: GameWorld):
+    def loop(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld):
 
         # Dash
         if gamepad.button_B.on_press and not self.__is_dashing and not self.__is_attacking:
@@ -111,10 +110,10 @@ class Player:
             self.run(gamepad, game_time, game_world)
 
 ### Attacking
-    def start_attack(self, gamepad: GamePad, game_time: GameTime):
+    def start_attack(self, gamepad: Gamepad, game_time: GameTime):
         self.__is_attacking = True
         self.__attack_start_time = game_time.total_time
-        self.character_sprite[0] = 7 + SPRITE_OFFSET
+        self.character_sprite[0] = 7 + SPRITE_INDEX_OFFSET
         self.player_attack_sprite[0] = 0
         self.player_attack_sprite.flip_x = self.character_sprite.flip_x
         self.player_attack_sprite.y = -5
@@ -124,7 +123,7 @@ class Player:
             self.player_attack_sprite.x = -15
         self.sprite.append(self.player_attack_sprite)
 
-    def attack_loop(self, gamepad: GamePad, game_time: GameTime):
+    def attack_loop(self, gamepad: Gamepad, game_time: GameTime):
         if game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME:
             self.sprite.remove(self.player_attack_sprite)
             self.__is_attacking = False
@@ -139,10 +138,10 @@ class Player:
             return
 
 ### Dashing
-    def start_dash(self, gamepad: GamePad, game_time: GameTime):
+    def start_dash(self, gamepad: Gamepad, game_time: GameTime):
         self.__dash_start_time = game_time.total_time
         self.__is_dashing = True
-        self.character_sprite[0] = 5 + SPRITE_OFFSET
+        self.character_sprite[0] = 5 + SPRITE_INDEX_OFFSET
         if gamepad.analog_X == 0 and gamepad.analog_Y == 0:
             self.__dash_direction_x = -1 if self.character_sprite.flip_x else 1
             self.__dash_direction_y = 0
@@ -164,12 +163,12 @@ class Player:
             new_y_position = self.position_y + self.__dash_direction_y * speed * game_time.delta_time
             self.move_to_position(new_x_position, new_y_position, game_world)
         elif game_time.total_time - self.__dash_start_time < PLAYER_DASH_DURATION + 0.1:
-            self.character_sprite[0] = 2 + SPRITE_OFFSET
+            self.character_sprite[0] = 2 + SPRITE_INDEX_OFFSET
         else:
-            self.character_sprite[0] = 3 + SPRITE_OFFSET
+            self.character_sprite[0] = 3 + SPRITE_INDEX_OFFSET
 
 ### Running
-    def run(self, gamepad: GamePad, game_time: GameTime, game_world: GameWorld):
+    def run(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld):
         new_x_position = (
             self.position_x
             + gamepad.analog_X * PLAYER_MAX_SPEED * game_time.delta_time
