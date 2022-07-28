@@ -137,6 +137,8 @@ class Player:
                 damageable_npc.take_damage(PLAYER_ATTACK_DAMAGE, game_time)
         
         # Attack sprite
+        if gamepad.analog_X != 0:
+            self.character_sprite.flip_x = True if gamepad.analog_X < 0 else False
         self.character_sprite[0] = 7 + SPRITE_INDEX_OFFSET
         self.player_attack_sprite[0] = 0
         self.player_attack_sprite.flip_x = self.character_sprite.flip_x
