@@ -59,12 +59,10 @@ class Player:
     __attack_start_time: float = 0
 
     def __init__(self, position_x: float, position_y: float):
-  
-        # Setup        
         self.health = PLAYER_MAX_HEALTH
         self.position_x = position_x
         self.position_y = position_y
-        
+        self.interacting_with_npc = None
         # Visuals
         self.character_sprite = import_tile_grid(
             image_path = PLAYER_SPRITE, 
@@ -91,7 +89,14 @@ class Player:
             self.character_position = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
             self.sprite.append(self.character_position)
 
+
     def loop(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld, npc_manager: npcmanager.NpcManager):
+        # Is interacting with an NPC (like talking)
+        if self.interacting_with_npc is not None:
+            if self.interacting_with_npc.is_interacted_with:
+                return
+            else:
+                self.interacting_with_npc = None
 
         # Dash
         if (gamepad.button_B.on_press or self.__buffered_action == "dash") and not self.__is_dashing and not self.__is_attacking:
@@ -104,7 +109,7 @@ class Player:
                 self.__buffered_action = "attack"
 
         # Attack
-        elif (gamepad.button_X.on_press or self.__buffered_action == "attack") and not self.__is_attacking and game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME + PLAYER_ATTACK_COOLDOWN:
+        elif self.can_attack(gamepad, game_time):
             self.start_attack(gamepad, game_time, npc_manager)
         elif (gamepad.button_X.on_press) and not self.__is_attacking:
             self.__buffered_action = "attack"
@@ -115,26 +120,46 @@ class Player:
             elif gamepad.button_X.on_press:
                 self.__buffered_action = "attack"
 
-        # Idle
-        elif gamepad.analog_X == 0 and gamepad.analog_Y == 0:
-            self.idle_animation.loop(game_time)
-
         # Run
-        else:
+        elif gamepad.analog_X != 0 or gamepad.analog_Y != 0:
             self.run(gamepad, game_time, game_world)
 
-### Attacking
+        # Idle
+        else:
+            self.idle_animation.loop(game_time)
+            
+
+    ### Attacking
+    def can_attack(self, gamepad: Gamepad, game_time: GameTime):
+        return \
+            (gamepad.button_X.on_press or self.__buffered_action == "attack") and \
+            not self.__is_attacking and \
+            not self.__is_dashing and \
+            game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME + PLAYER_ATTACK_COOLDOWN
+
     def start_attack(self, gamepad: Gamepad, game_time: GameTime, npc_manager: npcmanager.NpcManager):
-        # state
-        self.__buffered_action = None
-        self.__is_attacking = True
-        self.__attack_start_time = game_time.total_time
+        """Called on the first frame of the attack"""
 
         # Deal damange to enemies
         damageable_npcs = npc_manager.get_damageable_npcs()
         for damageable_npc in damageable_npcs:
             if self.can_hit(gamepad, damageable_npc.position_x,damageable_npc.position_y):
                 damageable_npc.take_damage(PLAYER_ATTACK_DAMAGE, game_time)
+        
+        # Interactable NPC's
+        interactable_npcs = npc_manager.get_interactable_npcs()
+        for interactable_npc in interactable_npcs:
+            if self.can_hit(gamepad, interactable_npc.position_x,interactable_npc.position_y):
+                interactable_npc.interact(game_time)
+                self.interacting_with_npc = interactable_npc
+                self.character_sprite[0] = 0 + SPRITE_INDEX_OFFSET
+                self.__buffered_action = None
+                return
+
+        # state
+        self.__buffered_action = None
+        self.__is_attacking = True
+        self.__attack_start_time = game_time.total_time
         
         # Attack sprite
         if gamepad.analog_X != 0:
@@ -151,6 +176,8 @@ class Player:
         self.sprite.append(self.player_attack_sprite)
 
     def attack_loop(self, gamepad: Gamepad, game_time: GameTime):
+        """Called continuesly untill the attack is done"""
+
         if game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME:
             self.sprite.remove(self.player_attack_sprite)
             self.__is_attacking = False
@@ -170,6 +197,8 @@ class Player:
 
 ### Dashing
     def start_dash(self, gamepad: Gamepad, game_time: GameTime):
+        """Called on the first frame of the dash"""
+
         self.__buffered_action = None
         self.__dash_start_time = game_time.total_time
         self.__is_dashing = True
@@ -183,6 +212,7 @@ class Player:
             self.__dash_direction_y = gamepad.analog_Y / length
 
     def dash_loop(self, game_world: GameWorld, game_time: GameTime):
+        """Called continuesly untill the dash is done"""
         if game_time.total_time - self.__dash_start_time > PLAYER_DASH_DURATION + PLAYER_DASH_RECOVERY_TIME:
             self.__is_dashing = False
             return

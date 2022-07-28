@@ -1,3 +1,4 @@
+from random import random
 import displayio
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
@@ -94,9 +95,20 @@ class GameWorld:
             return -1
         return self.world_map[lookup_index]
 
+    def change_tile(self, tile_x : int, tile_y : int, to_tile_type : int):
+        """Change a tile in the world"""
+        lookup_index = tile_y * self.map_width + tile_x
+        if lookup_index >= self.map_width * self.map_height:
+            return
+        self.world_map[lookup_index] = to_tile_type
+    
+    def shake(self, amount: float):
+        """Shakes the whole world"""
+        self.sprite.x = (int)(random() * amount)
+        self.sprite.y = (int)(random() * amount)
 
     def loop(self):
 
-
+        
         pass
 

@@ -10,7 +10,7 @@ DEBUG_SHOW_ENEMY_POSITION = False # Shows the enemies exact position with a smal
 
 # Visuals
 ENEMY_SPRITE = "/game_data/big-enemies.bmp"
-ENEMY_SPRITE_TYPE = 0
+ENEMY_SPRITE_TYPE = 1
 ENEMY_SPRITE_OFFSET = {"x": -16, "y": -26}
 ENEMY_SPRITE_TILE_SIZE = {"width": 32, "height": 36}
 ENEMY_IDLE_ANIMATION = {"fps": 0.45, "frames": [1 + ENEMY_SPRITE_TYPE * 8, 2 + ENEMY_SPRITE_TYPE * 8]}
@@ -61,7 +61,7 @@ class PunchBagEnemy:
             self.character_position = displayio.TileGrid(color_bitmap, pixel_shader=color_palette)
             self.sprite.append(self.character_position)
     
-    def loop(self, game_time: GameTime, game_world: GameWorld):
+    def loop(self, game_time: GameTime, game_world: GameWorld, ):
         self.idle_animation.loop(game_time)
         if game_time.total_time - self.take_damanage_time > TAKE_DAMAGE_WHITE_TIME:
             self.character_sprite.pixel_shader = self.original_palette

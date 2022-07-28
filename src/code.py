@@ -124,7 +124,7 @@ while True:
     gamepad.loop()
     # gamepad.print_state()
     player.loop(gamepad, game_time, game_world, npc_manager)
-    npc_manager.loop(game_time, game_world, player)
+    npc_manager.loop(game_time, game_world, player, gamepad)
     game_world.loop()
     #time.sleep(0.01)
 
