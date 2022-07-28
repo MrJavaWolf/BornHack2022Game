@@ -82,6 +82,7 @@ class DialogNpc:
         self.sprite.append(self.character_sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
+        
 
         # Debug show enemy center dot
         if DEBUG_SHOW_NPC_POSITION:
