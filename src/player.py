@@ -46,6 +46,8 @@ class Player:
     position_y: float = 0
     """The players Y position"""
 
+    __buffered_action: str = None
+
     # Dashing
     __is_dashing: bool = False
     __dash_start_time: float = 0
@@ -92,16 +94,26 @@ class Player:
     def loop(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld, npc_manager: npcmanager.NpcManager):
 
         # Dash
-        if gamepad.button_B.on_press and not self.__is_dashing and not self.__is_attacking:
+        if (gamepad.button_B.on_press or self.__buffered_action == "dash") and not self.__is_dashing and not self.__is_attacking:
             self.start_dash(gamepad, game_time)
         elif self.__is_dashing:
             self.dash_loop(game_world, game_time)
+            if gamepad.button_B.on_press:
+                self.__buffered_action = "dash"
+            elif gamepad.button_X.on_press:
+                self.__buffered_action = "attack"
 
         # Attack
-        elif gamepad.button_X.on_press and not self.__is_attacking and game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME+ PLAYER_ATTACK_COOLDOWN:
+        elif (gamepad.button_X.on_press or self.__buffered_action == "attack") and not self.__is_attacking and game_time.total_time - self.__attack_start_time > PLAYER_ATTACK_DURATION + PLAYER_ATTACK_RECOVERY_TIME + PLAYER_ATTACK_COOLDOWN:
             self.start_attack(gamepad, game_time, npc_manager)
+        elif (gamepad.button_X.on_press) and not self.__is_attacking:
+            self.__buffered_action = "attack"
         elif self.__is_attacking:
             self.attack_loop(game_world, game_time)
+            if gamepad.button_B.on_press:
+                self.__buffered_action = "dash"
+            elif gamepad.button_X.on_press:
+                self.__buffered_action = "attack"
 
         # Idle
         elif gamepad.analog_X == 0 and gamepad.analog_Y == 0:
@@ -114,6 +126,7 @@ class Player:
 ### Attacking
     def start_attack(self, gamepad: Gamepad, game_time: GameTime, npc_manager: npcmanager.NpcManager):
         # state
+        self.__buffered_action = None
         self.__is_attacking = True
         self.__attack_start_time = game_time.total_time
 
@@ -155,6 +168,7 @@ class Player:
 
 ### Dashing
     def start_dash(self, gamepad: Gamepad, game_time: GameTime):
+        self.__buffered_action = None
         self.__dash_start_time = game_time.total_time
         self.__is_dashing = True
         self.character_sprite[0] = 5 + SPRITE_INDEX_OFFSET
