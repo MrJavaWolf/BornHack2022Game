@@ -108,8 +108,8 @@ class GameWorld:
     
     def shake(self, amount: float):
         """Shakes the whole world"""
-        self.sprite.x = (int)(random() * amount)
-        self.sprite.y = (int)(random() * amount)
+        self.sprite.x = (int)(random() * amount - amount / 2)
+        self.sprite.y = (int)(random() * amount - amount / 2)
 
     def loop(self):
 

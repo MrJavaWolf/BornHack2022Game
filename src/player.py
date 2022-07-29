@@ -110,7 +110,7 @@ class Player:
         if (gamepad.button_B.on_press or self.__buffered_action == "dash") and not self.__is_dashing and not self.__is_attacking:
             self.start_dash(gamepad, game_time)
         elif self.__is_dashing:
-            self.dash_loop(game_world, game_time)
+            self.dash_loop(game_world, game_time, npc_manager)
             if gamepad.button_B.on_press:
                 self.__buffered_action = "dash"
             elif gamepad.button_X.on_press:
@@ -130,7 +130,7 @@ class Player:
 
         # Run
         elif gamepad.analog_X != 0 or gamepad.analog_Y != 0:
-            self.run(gamepad, game_time, game_world)
+            self.run(gamepad, game_time, game_world, npc_manager)
 
         # Idle
         else:
@@ -219,7 +219,7 @@ class Player:
             self.__dash_direction_x = gamepad.analog_X / length
             self.__dash_direction_y = gamepad.analog_Y / length
 
-    def dash_loop(self, game_world: GameWorld, game_time: GameTime):
+    def dash_loop(self, game_world: GameWorld, game_time: GameTime, npc_manager: npcmanager.NpcManager):
         """Called continuesly untill the dash is done"""
         if game_time.total_time - self.__dash_start_time > PLAYER_DASH_DURATION + PLAYER_DASH_RECOVERY_TIME:
             self.__is_dashing = False
@@ -231,14 +231,14 @@ class Player:
             speed = tween_value * PLAYER_DASH_SPEED
             new_x_position = self.position_x + self.__dash_direction_x * speed * game_time.delta_time        
             new_y_position = self.position_y + self.__dash_direction_y * speed * game_time.delta_time
-            self.move_to_position(new_x_position, new_y_position, game_world)
+            self.move_to_position(new_x_position, new_y_position, game_world, npc_manager)
         elif game_time.total_time - self.__dash_start_time < PLAYER_DASH_DURATION + 0.1:
             self.character_sprite[0] = 2
         else:
             self.character_sprite[0] = 3
 
 ### Running
-    def run(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld):
+    def run(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld, npc_manager: npcmanager.NpcManager):
         new_x_position = (
             self.position_x
             + gamepad.analog_X * PLAYER_MAX_SPEED * game_time.delta_time
@@ -247,22 +247,22 @@ class Player:
             self.position_y
             + gamepad.analog_Y * PLAYER_MAX_SPEED * game_time.delta_time
         )
-        self.move_to_position(new_x_position, new_y_position, game_world)
+        self.move_to_position(new_x_position, new_y_position, game_world, npc_manager)
         self.character_sprite.flip_x = True if gamepad.analog_X < 0 else False
         self.run_animation.loop(game_time)
 
 ### Utility
-    def move_to_position(self, x_position: float, y_position: float, game_world: GameWorld):
+    def move_to_position(self, x_position: float, y_position: float, game_world: GameWorld, npc_manager: npcmanager.NpcManager):
         if y_position < 0:
             y_position = 0
         if x_position < 0:
             x_position = 0
-        if game_world.is_walkable(x_position, y_position):
+        if game_world.is_walkable(x_position, y_position) and npc_manager.is_walkable(x_position, y_position):
             self.position_x = x_position
             self.position_y = y_position
-        elif game_world.is_walkable(self.position_x, y_position):
+        elif game_world.is_walkable(self.position_x, y_position) and npc_manager.is_walkable(self.position_x, y_position):
             self.position_y = y_position
-        elif game_world.is_walkable(x_position, self.position_y):
+        elif game_world.is_walkable(x_position, self.position_y) and npc_manager.is_walkable(x_position, self.position_y):
             self.position_x = x_position
 
         self.sprite.x = int(self.position_x)

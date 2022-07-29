@@ -35,6 +35,7 @@ from framecounter import FrameCounter
 from npcmanager import NpcManager 
 from imagemanager import ImageManager
 import adafruit_imageload
+from uispeechbox import UISpeechBox
 
 SHOW_FPS = True
 SHOW_SPLASHSCREEN = False
@@ -107,10 +108,11 @@ def initialize(init):
 
 image_manager = initialize(lambda: ImageManager())
 frame_counter = initialize(lambda: FrameCounter())
+ui_speech_box = initialize(lambda: UISpeechBox())
 game_world = initialize(lambda: GameWorld(image_manager))
 player = initialize(lambda: Player(image_manager, 64, 64))
 game_time = initialize(lambda: GameTime())
-npc_manager = initialize(lambda: NpcManager(image_manager))
+npc_manager = initialize(lambda: NpcManager(image_manager, ui_speech_box))
 splash = displayio.Group()
 
 # What to show on screen - World
@@ -122,7 +124,7 @@ splash.append(world_sprite)
 
 # What to show on screen - UI
 ui_sprite = displayio.Group()
-ui_sprite.append(npc_manager.sprite_ui)
+ui_sprite.append(ui_speech_box.sprite_ui)
 splash.append(ui_sprite)
 if SHOW_FPS:
     splash.append(frame_counter.sprite)
