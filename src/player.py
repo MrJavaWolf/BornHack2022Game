@@ -7,6 +7,7 @@ from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
 import Tween.Tween
 import npcmanager
+import gc
 
 # Visuals
 PLAYER_SPRITE_TYPE = 3
@@ -63,6 +64,7 @@ class Player:
         self.position_x = position_x
         self.position_y = position_y
         self.interacting_with_npc = None
+        
         # Visuals
         self.character_sprite = import_tile_grid(
             image_path = PLAYER_SPRITE, 

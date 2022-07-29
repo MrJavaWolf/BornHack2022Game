@@ -6,6 +6,7 @@ from dialognpc import DialogNpc
 import displayio
 import player
 
+
 class NpcManager:
 
     def __init__(self):
@@ -14,6 +15,8 @@ class NpcManager:
         self.sprite = displayio.Group(scale=1)
         self.sprite.append(self.punch_bag_enemy.sprite)
         self.sprite.append(self.dialog_npc.sprite)
+        self.sprite_ui = displayio.Group(scale=1)
+        self.sprite_ui.append(self.dialog_npc.sprite_ui)
 
     def loop(self, game_time: GameTime, game_world: GameWorld, player: player.Player, gamepad: Gamepad):
         if self.punch_bag_enemy: 

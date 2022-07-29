@@ -19,6 +19,7 @@ print("Hello BornHack 2022 Gaming")
 This test will initialize the display using displayio and draw a solid green
 background, a smaller purple rectangle, and some yellow text.
 """
+import gc
 import board
 import terminalio
 import displayio
@@ -33,10 +34,9 @@ from player import Player
 from framecounter import FrameCounter
 from npcmanager import NpcManager 
 import adafruit_imageload
-import gc
 
 SHOW_FPS = True
-SHOW_SPLASHSCREEN = True
+SHOW_SPLASHSCREEN = False
 
 SCREEN_WIDTH = 128
 SCREEN_HEIGHT = 160
@@ -93,26 +93,43 @@ text_area2.text="Loading..."
 display.refresh()
 display.auto_refresh = False
 
-frame_counter = FrameCounter()
-game_world = GameWorld()
-player = Player(64, 64)
-game_time = GameTime()
-npc_manager = NpcManager()
+
+
+def initialize(init):
+    gc.collect() # Free memory due to unoptimized initialization code
+    memory_before = gc.mem_free()
+    created_object = init()
+    gc.collect() # Free memory due to unoptimized initialization code
+    memory_after = gc.mem_free()
+    print("{} Used: {} bytes, Memory left: {} bytes".format(type(created_object).__name__, memory_before - memory_after, memory_after))
+    return created_object
+
+
+
+frame_counter = initialize(lambda: FrameCounter())
+game_world = initialize(lambda: GameWorld())
+player = initialize(lambda: Player(64, 64))
+game_time = initialize(lambda: GameTime())
+npc_manager = initialize(lambda: NpcManager())
 splash = displayio.Group()
 
-# Show on screen
+# What to show on screen - World
 world_sprite = displayio.Group()
 world_sprite.append(game_world.sprite)
 world_sprite.append(npc_manager.sprite)
 world_sprite.append(player.sprite)
 splash.append(world_sprite)
 
-
+# What to show on screen - UI
+ui_sprite = displayio.Group()
+ui_sprite.append(npc_manager.sprite_ui)
+splash.append(ui_sprite)
 if SHOW_FPS:
     splash.append(frame_counter.sprite)
+
+
 display.show(splash)
-
-
+gc.collect()
 start_mem = gc.mem_free()
 print("Available memory: {} bytes".format(start_mem))
 

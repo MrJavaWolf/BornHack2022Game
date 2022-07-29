@@ -2,6 +2,7 @@ from random import random
 import displayio
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
+import gc
 
 DEFAULT_TILE = 52
 DEFAULT_TILE_MAP = "/game_data/bornhack.csv"
@@ -32,7 +33,7 @@ class GameWorld:
         self.tile_pixel_width = tile_pixel_width
         self.tile_pixel_height = tile_pixel_height
         self.walkable_tiles = walkable_tiles
-
+        
         # Reads the size of the tile map
         self.map_width, self.map_height = self.__get_map_size()
 
@@ -46,7 +47,7 @@ class GameWorld:
             default_tile=self.default_tile
         )
         self.__paint_world_map()
-
+       
         # Saves it to a group to be easily moved around
         self.sprite = displayio.Group()
         self.sprite.append(self.world_map)
@@ -59,8 +60,9 @@ class GameWorld:
         with open(self.tile_map_file, mode="r") as file:
             for line in file:
                 height += 1
-                values = line.split(",")
-                width = len(values) if len(values) > width else width
+                values = line.count(",")
+                width = values if values > width else width
+                pass
         return width, height
 
 
@@ -71,7 +73,6 @@ class GameWorld:
                     tile_type, is_int = self.__int_try_parse(value)
                     if is_int and tile_type >= 0:
                         self.world_map[y * self.map_width + x] = tile_type
-
 
     def __int_try_parse(self, value):
         try:
