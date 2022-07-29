@@ -8,16 +8,14 @@ from tilegridloader import import_tile_grid
 import Tween.Tween
 import npcmanager
 import gc
+from imagemanager import ImageManager
 
 # Visuals
-PLAYER_SPRITE_TYPE = 3
-NUMBER_OF_SPRITES = 9
-SPRITE_INDEX_OFFSET = PLAYER_SPRITE_TYPE * NUMBER_OF_SPRITES
-PLAYER_SPRITE = "/game_data/characters.bmp"
+PLAYER_SPRITE = "/game_data/player_3.bmp"
 PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
 PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
-PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0 + SPRITE_INDEX_OFFSET, 1 + SPRITE_INDEX_OFFSET]}
-PLAYER_RUN_ANIMATION = {"fps": 0.15, "frames": [4 + SPRITE_INDEX_OFFSET, 7 + SPRITE_INDEX_OFFSET]}
+PLAYER_IDLE_ANIMATION = {"fps": 0.5, "frames": [0, 1]}
+PLAYER_RUN_ANIMATION = {"fps": 0.15, "frames": [4, 7]}
 
 # Generel 
 PLAYER_MAX_SPEED = 50.0
@@ -59,18 +57,21 @@ class Player:
     __is_attacking: bool = False
     __attack_start_time: float = 0
 
-    def __init__(self, position_x: float, position_y: float):
+    def __init__(self, image_manager: ImageManager, position_x: float, position_y: float):
         self.health = PLAYER_MAX_HEALTH
         self.position_x = position_x
         self.position_y = position_y
         self.interacting_with_npc = None
         
         # Visuals
-        self.character_sprite = import_tile_grid(
-            image_path = PLAYER_SPRITE, 
-            tile_pixel_width = PLAYER_SPRITE_TILE_SIZE["width"], 
-            tile_pixel_height = PLAYER_SPRITE_TILE_SIZE["height"]
+        self.character_bitmap, self.character_palette = image_manager.get_image(PLAYER_SPRITE)
+        self.character_sprite = displayio.TileGrid(
+            bitmap=self.character_bitmap,
+            pixel_shader=self.character_palette,
+            tile_width=PLAYER_SPRITE_TILE_SIZE["width"],
+            tile_height=PLAYER_SPRITE_TILE_SIZE["height"],
         )
+
         self.character_sprite.x = PLAYER_SPRITE_OFFSET["x"]
         self.character_sprite.y = PLAYER_SPRITE_OFFSET["y"]
         self.idle_animation = TileAnimation(self.character_sprite, PLAYER_IDLE_ANIMATION["frames"], PLAYER_IDLE_ANIMATION["fps"])
@@ -81,7 +82,12 @@ class Player:
         self.sprite.y = int(self.position_y)
 
         # Visuals - Attack
-        self.player_attack_sprite = import_tile_grid("/game_data/attack-slash.bmp", 36, 16)
+        self.attack_bitmap, self.attack_palette = image_manager.get_image("/game_data/attack-slash.bmp")
+        self.player_attack_sprite = displayio.TileGrid(
+            bitmap=self.attack_bitmap,
+            pixel_shader=self.attack_palette,
+            tile_width=36,
+            tile_height=16)
 
         # Debug show player center dot
         if DEBUG_SHOW_PLAYER_POSITION:
@@ -154,7 +160,7 @@ class Player:
             if self.can_hit(gamepad, interactable_npc.position_x,interactable_npc.position_y):
                 interactable_npc.interact(game_time)
                 self.interacting_with_npc = interactable_npc
-                self.character_sprite[0] = 0 + SPRITE_INDEX_OFFSET
+                self.character_sprite[0] = 0
                 self.__buffered_action = None
                 return
 
@@ -166,7 +172,7 @@ class Player:
         # Attack sprite
         if gamepad.analog_X != 0:
             self.character_sprite.flip_x = True if gamepad.analog_X < 0 else False
-        self.character_sprite[0] = 7 + SPRITE_INDEX_OFFSET
+        self.character_sprite[0] = 7
         self.player_attack_sprite[0] = 0
         self.player_attack_sprite.flip_x = self.character_sprite.flip_x
         self.player_attack_sprite.flip_y = True if gamepad.analog_Y < 0 else False 
@@ -204,7 +210,7 @@ class Player:
         self.__buffered_action = None
         self.__dash_start_time = game_time.total_time
         self.__is_dashing = True
-        self.character_sprite[0] = 5 + SPRITE_INDEX_OFFSET
+        self.character_sprite[0] = 5
         if gamepad.analog_X == 0 and gamepad.analog_Y == 0:
             self.__dash_direction_x = -1 if self.character_sprite.flip_x else 1
             self.__dash_direction_y = 0
@@ -227,9 +233,9 @@ class Player:
             new_y_position = self.position_y + self.__dash_direction_y * speed * game_time.delta_time
             self.move_to_position(new_x_position, new_y_position, game_world)
         elif game_time.total_time - self.__dash_start_time < PLAYER_DASH_DURATION + 0.1:
-            self.character_sprite[0] = 2 + SPRITE_INDEX_OFFSET
+            self.character_sprite[0] = 2
         else:
-            self.character_sprite[0] = 3 + SPRITE_INDEX_OFFSET
+            self.character_sprite[0] = 3
 
 ### Running
     def run(self, gamepad: Gamepad, game_time: GameTime, game_world: GameWorld):

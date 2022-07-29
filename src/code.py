@@ -33,6 +33,7 @@ from gameworld import GameWorld
 from player import Player
 from framecounter import FrameCounter
 from npcmanager import NpcManager 
+from imagemanager import ImageManager
 import adafruit_imageload
 
 SHOW_FPS = True
@@ -104,13 +105,12 @@ def initialize(init):
     print("{} Used: {} bytes, Memory left: {} bytes".format(type(created_object).__name__, memory_before - memory_after, memory_after))
     return created_object
 
-
-
+image_manager = initialize(lambda: ImageManager())
 frame_counter = initialize(lambda: FrameCounter())
-game_world = initialize(lambda: GameWorld())
-player = initialize(lambda: Player(64, 64))
+game_world = initialize(lambda: GameWorld(image_manager))
+player = initialize(lambda: Player(image_manager, 64, 64))
 game_time = initialize(lambda: GameTime())
-npc_manager = initialize(lambda: NpcManager())
+npc_manager = initialize(lambda: NpcManager(image_manager))
 splash = displayio.Group()
 
 # What to show on screen - World

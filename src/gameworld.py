@@ -3,6 +3,7 @@ import displayio
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid
 import gc
+from imagemanager import ImageManager
 
 DEFAULT_TILE = 52
 DEFAULT_TILE_MAP = "/game_data/bornhack.csv"
@@ -20,6 +21,7 @@ class GameWorld:
     tile_pixel_height: int
 
     def __init__(self,
+        image_manager:ImageManager,
         sprite_sheet_file:str = DEFAULT_SPRITE_SHEET,
         tile_map_file:str = DEFAULT_TILE_MAP,
         default_tile:int = DEFAULT_TILE,
@@ -38,14 +40,15 @@ class GameWorld:
         self.map_width, self.map_height = self.__get_map_size()
 
         # Sets up the world tile map
-        self.world_map = import_tile_grid(
-            image_path=self.sprite_sheet_file,
-            tile_pixel_width=self.tile_pixel_width,
-            tile_pixel_height=self.tile_pixel_height,
+        self.bitmap, self.palette = image_manager.get_image(self.sprite_sheet_file)
+        self.world_map =displayio.TileGrid(
+            bitmap=self.bitmap,
+            pixel_shader=self.palette,
             width=self.map_width,
             height=self.map_height,
-            default_tile=self.default_tile
-        )
+            tile_width=tile_pixel_width,
+            tile_height=tile_pixel_height,
+            default_tile=default_tile)
         self.__paint_world_map()
        
         # Saves it to a group to be easily moved around

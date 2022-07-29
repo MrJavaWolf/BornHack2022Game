@@ -3,15 +3,16 @@ from punchbagenemy import PunchBagEnemy
 from gametime import GameTime
 from gameworld import GameWorld
 from dialognpc import DialogNpc
+from imagemanager import ImageManager
 import displayio
 import player
 
 
 class NpcManager:
 
-    def __init__(self):
-        self.punch_bag_enemy = PunchBagEnemy(86, 64)
-        self.dialog_npc = DialogNpc(35, 64)
+    def __init__(self, image_manager: ImageManager):
+        self.punch_bag_enemy = PunchBagEnemy(image_manager, 86, 64)
+        self.dialog_npc = DialogNpc(image_manager, 35, 64)
         self.sprite = displayio.Group(scale=1)
         self.sprite.append(self.punch_bag_enemy.sprite)
         self.sprite.append(self.dialog_npc.sprite)

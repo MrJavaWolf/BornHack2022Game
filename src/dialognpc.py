@@ -9,19 +9,19 @@ from gametime import GameTime
 from gameworld import GameWorld
 from tileanimation import TileAnimation
 from tilegridloader import import_tile_grid, TRANSPARENT_COLOR
+from imagemanager import ImageManager
 
 ENEMY_MAX_SPEED = 50.0
 ENEMY_MAX_HEALTH = 100.0
 DEBUG_SHOW_NPC_POSITION = False  # Shows the enemies exact position with a small dot
 
 # Visuals
-NPC_SPRITE = "/game_data/big-enemies.bmp"
-NPC_SPRITE_TYPE = 0
+NPC_SPRITE = "/game_data/big_npc_0.bmp"
 NPC_SPRITE_OFFSET = {"x": -16, "y": -26}
 NPC_SPRITE_TILE_SIZE = {"width": 32, "height": 36}
 NPC_IDLE_ANIMATION = {
     "fps": 0.45,
-    "frames": [1 + NPC_SPRITE_TYPE * 8, 2 + NPC_SPRITE_TYPE * 8],
+    "frames": [1, 2],
 }
 NPC_RUN_ANIMATION = {"fps": 0.15, "frames": [4, 7]}
 
@@ -61,18 +61,21 @@ class DialogNpc:
     # Wait time state
     __current_action_start_time: float = 0
 
-    def __init__(self, position_x: float, position_y: float):
+    def __init__(self, image_manager: ImageManager, position_x: float, position_y: float):
 
         # Setup
         self.position_x = position_x
         self.position_y = position_y
         self.actions = INTERACTION_ACTIONS
         # Visuals
-        self.character_sprite = import_tile_grid(
-            image_path=NPC_SPRITE,
-            tile_pixel_width=NPC_SPRITE_TILE_SIZE["width"],
-            tile_pixel_height=NPC_SPRITE_TILE_SIZE["height"],
-        )
+        
+        self.bitmap, self.palette = image_manager.get_image(NPC_SPRITE)
+        self.character_sprite = displayio.TileGrid(
+            bitmap=self.bitmap,
+            pixel_shader=self.palette,
+            tile_width=NPC_SPRITE_TILE_SIZE["width"],
+            tile_height=NPC_SPRITE_TILE_SIZE["height"])
+
         self.character_sprite.x = NPC_SPRITE_OFFSET["x"]
         self.character_sprite.y = NPC_SPRITE_OFFSET["y"]
         self.idle_animation = TileAnimation(
