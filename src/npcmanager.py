@@ -2,7 +2,7 @@ from gamepad import Gamepad
 from punchbagenemy import PunchBagEnemy
 from gametime import GameTime
 from gameworld import GameWorld
-from dialognpc import DialogNpc
+from interactable_npc import InteractableNpc
 from imagemanager import ImageManager
 import displayio
 import player
@@ -19,7 +19,7 @@ class NpcManager:
         # Initialize interactable npcs
         self.interactable_npcs = []
         for npc in interactable_npc_data.interactable_npcs:
-            new_npc = DialogNpc(image_manager, ui_speech_box, npc)
+            new_npc = InteractableNpc(image_manager, ui_speech_box, npc)
             self.interactable_npcs.append(new_npc)
             self.sprite.append(new_npc.sprite)
 

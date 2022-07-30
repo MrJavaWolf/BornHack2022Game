@@ -15,7 +15,7 @@ from uispeechbox import UISpeechBox
 DEBUG_SHOW_NPC_POSITION = False  # Shows the npc's exact position with a small dot
 
 # Visuals
-class DialogNpc:
+class InteractableNpc:
 
     position_x : float
     """The NPC's x position"""
