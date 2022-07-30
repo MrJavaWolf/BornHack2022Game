@@ -35,6 +35,12 @@ class DialogNpc:
     # Wait time state
     __current_action_start_time: float = 0
 
+    bitmap = None
+    palette = None
+    character_sprite = None
+    idle_animation:TileAnimation = None
+    run_animation: TileAnimation = None
+
     def __init__(
         self, image_manager: ImageManager, ui_speech_box: UISpeechBox, npc_data
     ):
@@ -49,30 +55,32 @@ class DialogNpc:
         self.actions = npc_data["actions"]
 
         # Visuals
-        self.bitmap, self.palette = image_manager.get_image(npc_data["sprite_sheet"])
-        self.character_sprite = displayio.TileGrid(
-            bitmap=self.bitmap,
-            pixel_shader=self.palette,
-            tile_width=npc_data["sprite_sheet_tile_size"]["width"],
-            tile_height=npc_data["sprite_sheet_tile_size"]["height"],
-        )
-
-        self.character_sprite.x = npc_data["sprite_offset"]["x"]
-        self.character_sprite.y = npc_data["sprite_offset"]["y"]
-        self.idle_animation = TileAnimation(
-            self.character_sprite,
-            npc_data["idle_animation"]["frames"],
-            npc_data["idle_animation"]["fps"],
-        )
-        self.run_animation = TileAnimation(
-            self.character_sprite,
-            npc_data["run_animation"]["frames"],
-            npc_data["run_animation"]["fps"],
-        )
         self.sprite = displayio.Group(scale=1)
-        self.sprite.append(self.character_sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
+        if npc_data["sprite_sheet"] is not None:
+            self.bitmap, self.palette = image_manager.get_image(npc_data["sprite_sheet"])
+            self.character_sprite = displayio.TileGrid(
+                bitmap=self.bitmap,
+                pixel_shader=self.palette,
+                tile_width=npc_data["sprite_sheet_tile_size"]["width"],
+                tile_height=npc_data["sprite_sheet_tile_size"]["height"],
+            )
+
+            self.character_sprite.x = npc_data["sprite_offset"]["x"]
+            self.character_sprite.y = npc_data["sprite_offset"]["y"]
+            self.idle_animation = TileAnimation(
+                self.character_sprite,
+                npc_data["idle_animation"]["frames"],
+                npc_data["idle_animation"]["fps"],
+            )
+            self.run_animation = TileAnimation(
+                self.character_sprite,
+                npc_data["run_animation"]["frames"],
+                npc_data["run_animation"]["fps"],
+            )
+            self.sprite.append(self.character_sprite)
+        
 
         # Debug show enemy center dot
         if DEBUG_SHOW_NPC_POSITION:
@@ -85,7 +93,10 @@ class DialogNpc:
             self.sprite.append(self.character_position)
     
     def loop(self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad):
-        self.idle_animation.loop(game_time)
+        
+        if self.idle_animation is not None:
+            self.idle_animation.loop(game_time)
+        
         if self.is_interacted_with:
             self.interaction_loop(game_time, game_world, gamepad)
 
@@ -135,11 +146,13 @@ class DialogNpc:
                 self.go_to_next_interaction(game_time, game_world)
 
         elif self.current_action_type == "flip_sprite_x":
-            self.character_sprite.flip_x = self.current_action["value"]
+            if self.character_sprite is not None:
+                self.character_sprite.flip_x = self.current_action["value"]
             self.go_to_next_interaction(game_time, game_world)
 
         elif self.current_action_type == "flip_sprite_y":
-            self.character_sprite.flip_y = self.current_action["value"]
+            if self.character_sprite is not None:
+                self.character_sprite.flip_y = self.current_action["value"]
             self.go_to_next_interaction(game_time, game_world)
 
         else:
