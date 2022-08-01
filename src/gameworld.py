@@ -1,8 +1,5 @@
 from random import random
 import displayio
-from tileanimation import TileAnimation
-from tilegridloader import import_tile_grid
-import gc
 from imagemanager import ImageManager
 
 DEFAULT_TILE = 52

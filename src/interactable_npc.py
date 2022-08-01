@@ -1,14 +1,11 @@
+from characterrenderer import CharacterRenderer
 import displayio
-from adafruit_display_text import label
-from adafruit_display_text import wrap_text_to_pixels
-import terminalio
 from adafruit_display_shapes.roundrect import RoundRect
 
 from gamepad import Gamepad
 from gametime import GameTime
 from gameworld import GameWorld
 from tileanimation import TileAnimation
-from tilegridloader import import_tile_grid, TRANSPARENT_COLOR
 from imagemanager import ImageManager
 from uispeechbox import UISpeechBox
 
@@ -17,15 +14,15 @@ DEBUG_SHOW_NPC_POSITION = False  # Shows the npc's exact position with a small d
 # Visuals
 class InteractableNpc:
 
-    position_x : float
+    position_x: float
     """The NPC's x position"""
 
-    position_y : float 
+    position_y: float
     """The NPC's y position"""
-    
+
     collision_size_width: float
     """How big the NPC is"""
-    
+
     collision_size_height: float
     """How big the NPC is"""
 
@@ -37,9 +34,9 @@ class InteractableNpc:
 
     bitmap = None
     palette = None
-    character_sprite = None
-    idle_animation:TileAnimation = None
+    idle_animation: TileAnimation = None
     run_animation: TileAnimation = None
+    characer_renderer: CharacterRenderer = None
 
     def __init__(
         self, image_manager: ImageManager, ui_speech_box: UISpeechBox, npc_data
@@ -48,39 +45,29 @@ class InteractableNpc:
         self.npc_data = npc_data
         self.collision_size_width = npc_data["collision_size"]["width"]
         self.collision_size_height = npc_data["collision_size"]["height"]
-        
+
         # Setup
         self.position_x = npc_data["position"]["x"]
         self.position_y = npc_data["position"]["y"]
         self.actions = npc_data["actions"]
 
         # Visuals
-        self.sprite = displayio.Group(scale=1)
+        self.sprite = displayio.Group()
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
         if npc_data["sprite_sheet"] is not None:
-            self.bitmap, self.palette = image_manager.get_image(npc_data["sprite_sheet"])
-            self.character_sprite = displayio.TileGrid(
-                bitmap=self.bitmap,
-                pixel_shader=self.palette,
-                tile_width=npc_data["sprite_sheet_tile_size"]["width"],
-                tile_height=npc_data["sprite_sheet_tile_size"]["height"],
+            self.characer_renderer = CharacterRenderer(
+                image_manager,
+                npc_data["sprite_sheet"],
+                npc_data["sprite_sheet_tile_size"]["width"],
+                npc_data["sprite_sheet_tile_size"]["height"],
+                npc_data["sprite_offset"]["x"],
+                npc_data["sprite_offset"]["y"],
+                npc_data["animations"],
             )
-
-            self.character_sprite.x = npc_data["sprite_offset"]["x"]
-            self.character_sprite.y = npc_data["sprite_offset"]["y"]
-            self.idle_animation = TileAnimation(
-                self.character_sprite,
-                npc_data["idle_animation"]["frames"],
-                npc_data["idle_animation"]["fps"],
-            )
-            self.run_animation = TileAnimation(
-                self.character_sprite,
-                npc_data["run_animation"]["frames"],
-                npc_data["run_animation"]["fps"],
-            )
-            self.sprite.append(self.character_sprite)
-        
+            if npc_data["default_animation"] is not None:
+                self.characer_renderer.play_animation(npc_data["default_animation"])
+            self.sprite.append(self.characer_renderer.sprite)
 
         # Debug show enemy center dot
         if DEBUG_SHOW_NPC_POSITION:
@@ -91,12 +78,12 @@ class InteractableNpc:
                 color_bitmap, pixel_shader=color_palette
             )
             self.sprite.append(self.character_position)
-    
+
     def loop(self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad):
-        
-        if self.idle_animation is not None:
-            self.idle_animation.loop(game_time)
-        
+
+        if self.characer_renderer is not None:
+            self.characer_renderer.loop(game_time)
+
         if self.is_interacted_with:
             self.interaction_loop(game_time, game_world, gamepad)
 
@@ -146,13 +133,14 @@ class InteractableNpc:
                 self.go_to_next_interaction(game_time, game_world)
 
         elif self.current_action_type == "flip_sprite_x":
-            if self.character_sprite is not None:
-                self.character_sprite.flip_x = self.current_action["value"]
+            if self.characer_renderer is not None:
+                self.characer_renderer.flip_x(self.current_action["value"])
+
             self.go_to_next_interaction(game_time, game_world)
 
         elif self.current_action_type == "flip_sprite_y":
-            if self.character_sprite is not None:
-                self.character_sprite.flip_y = self.current_action["value"]
+            if self.characer_renderer is not None:
+                self.characer_renderer.flip_y(self.current_action["value"])
             self.go_to_next_interaction(game_time, game_world)
 
         else:

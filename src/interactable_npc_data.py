@@ -5,11 +5,15 @@ interactable_npcs = [
         "sprite_sheet": "/game_data/big_npc_0.bmp",
         "sprite_offset": {"x": -16, "y": -26},
         "sprite_sheet_tile_size": {"width": 32, "height": 36},
-        "idle_animation": {
-            "fps": 0.45,
-            "frames": [1, 2],
-        },
-        "run_animation": {"fps": 0.15, "frames": [4, 7]},
+        "default_animation": "idle",
+        "animations": [
+            {
+                "name": "idle",
+                "fps": 0.45,
+                "frames": [1, 2],
+            },
+            #{"name": "run", "fps": 0.15, "frames": [4, 7]},
+        ],
         "actions": [
             {
                 "action_type": "talk",
@@ -45,8 +49,8 @@ interactable_npcs = [
                 "text": "Ohh-y~ I think the world just changed",
             },
             {
-            "action_type": "flip_sprite_x",
-            "value": False,
+                "action_type": "flip_sprite_x",
+                "value": False,
             },
         ],
     }
