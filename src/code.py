@@ -1,24 +1,3 @@
-print("Hello BornHack 2022 Gaming")
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-# https://github.com/todbot/circuitpython-tricks/blob/main/README.md#read-an-digital-input-as-a-button
-# https://docs.circuitpython.org/en/latest/shared-bindings/displayio/#displayio.Bitmap
-
-# Todo
-# - Analog
-# - Design game
-#   - Player movement
-#   - Player sprite
-#   - Player actions (Melee (with charge), Shoot(with charge), dash (with charge))
-#   - Effects
-#   - Enemies
-#   - Game world (Hardcoded, Perlin noise, Wave function collaps)
-
-
-"""
-This test will initialize the display using displayio and draw a solid green
-background, a smaller purple rectangle, and some yellow text.
-"""
 import gc
 import board
 import terminalio
@@ -36,9 +15,10 @@ from npcmanager import NpcManager
 from imagemanager import ImageManager
 import adafruit_imageload
 from uispeechbox import UISpeechBox
+from splashscreen import SplashScreen
 
 SHOW_FPS = True
-SHOW_SPLASHSCREEN = False
+SHOW_SPLASHSCREEN = True
 
 SCREEN_WIDTH = 128
 SCREEN_HEIGHT = 160
@@ -60,42 +40,24 @@ display_bus = displayio.FourWire(
 display = ST7735R(
     display_bus, width=SCREEN_WIDTH, height=SCREEN_HEIGHT, rotation=0, bgr=True, colstart=2, rowstart=1
 )
-
-
-# bl = digitalio.DigitalInOut(board.PWM0)
-# bl.direction = digitalio.Direction.OUTPUT
-# bl.value = True
 bl = pwmio.PWMOut(board.PWM0, frequency=5000, duty_cycle=0)
 bl.duty_cycle = 60000
 
 # Setup the display
-splash = displayio.Group()
-display.show(splash)
-
-# Show JWolf badge
-text_group1 = displayio.Group(scale=3, x=20, y=50)
-text_area1 = label.Label(terminalio.FONT, text="JWolf", color=0xFF00FF)
-text_group1.append(text_area1)  # Subgroup for text scaling
-
-text_group2 = displayio.Group(scale=1, x=15, y=100)
-text_area2 = label.Label(terminalio.FONT, text="Press A to start", color=0xFFFFFF)
-text_group2.append(text_area2)  # Subgroup for text scaling
-
-splash.append(text_group1)
-splash.append(text_group2)
-display.show(splash)
-
+screen = displayio.Group()
+display.show(screen)
 gamepad = Gamepad()
-if SHOW_SPLASHSCREEN:
-    while not gamepad.button_A.on_press:
-        time.sleep(0.05)
-        gamepad.loop()
+splash_screen = SplashScreen()
+display.show(splash_screen.sprite)
 
-text_area2.text="Loading..."
+if SHOW_SPLASHSCREEN:
+    while not splash_screen.go_to_next_screen:
+        gamepad.loop()
+        splash_screen.loop(gamepad)
+        time.sleep(0.05)
+
 display.refresh()
 display.auto_refresh = False
-
-
 
 def initialize(init):
     gc.collect() # Free memory due to unoptimized initialization code
@@ -113,24 +75,24 @@ game_world = initialize(lambda: GameWorld(image_manager))
 player = initialize(lambda: Player(image_manager, 64, 64))
 game_time = initialize(lambda: GameTime())
 npc_manager = initialize(lambda: NpcManager(image_manager, ui_speech_box))
-splash = displayio.Group()
+screen = displayio.Group()
 
 # What to show on screen - World
 world_sprite = displayio.Group()
 world_sprite.append(game_world.sprite)
 world_sprite.append(npc_manager.sprite)
 world_sprite.append(player.sprite)
-splash.append(world_sprite)
+screen.append(world_sprite)
 
 # What to show on screen - UI
 ui_sprite = displayio.Group()
 ui_sprite.append(ui_speech_box.sprite_ui)
-splash.append(ui_sprite)
+screen.append(ui_sprite)
 if SHOW_FPS:
-    splash.append(frame_counter.sprite)
+    screen.append(frame_counter.sprite)
 
 
-display.show(splash)
+display.show(screen)
 gc.collect()
 start_mem = gc.mem_free()
 print("Available memory: {} bytes".format(start_mem))
