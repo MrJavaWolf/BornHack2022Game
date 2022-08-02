@@ -80,16 +80,42 @@ hidden_treasure_1_npc = {
         {
             "name": "open",
             "fps": 0.5,
-            "frames": [21, 22, 23],
+            "frames": [
+                21,
+                22,
+                23,
+                23,
+                23,
+                23,
+                23,
+                23,
+                22,
+                21,
+                25,
+                26,
+                27,
+                26,
+                27,
+                26,
+                27,
+                27,
+                27,
+                27,
+                27,
+                27,
+                27,
+                26,
+                21,
+            ],
             "loop_animation": False,
         },
     ],
-     "actions": [
+    "actions": [
         {
             "action_type": "play_animation",
             "animation": "open",
         }
-     ]
+    ],
 }
 
 
