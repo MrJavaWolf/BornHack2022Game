@@ -12,7 +12,7 @@ from uispeechbox import UISpeechBox
 
 class NpcManager:
     def __init__(self, image_manager: ImageManager, ui_speech_box: UISpeechBox):
-        self.punch_bag_enemy = PunchBagEnemy(image_manager, 86, 64)
+        self.punch_bag_enemy = PunchBagEnemy(image_manager, 594, 64)
         self.sprite = displayio.Group(scale=1)
         self.sprite.append(self.punch_bag_enemy.sprite)
 

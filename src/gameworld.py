@@ -5,7 +5,7 @@ from tileanimation import TileAnimation
 from gametime import GameTime
 
 DEFAULT_TILE = 52
-DEFAULT_TILE_MAP = "/game_data/bornhack.csv"
+DEFAULT_TILE_MAP = "/game_data/world_map.csv"
 DEFAULT_SPRITE_SHEET = "/game_data/mystic-woods.bmp"
 DEFAULT_TILE_PIXEL_WIDTH = 16
 DEFAULT_TILE_PIXEL_HEIGHT = 16

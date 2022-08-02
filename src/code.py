@@ -50,11 +50,12 @@ gamepad = Gamepad()
 splash_screen = SplashScreen()
 display.show(splash_screen.sprite)
 
-if SHOW_SPLASHSCREEN:
-    while not splash_screen.go_to_next_screen:
-        gamepad.loop()
-        splash_screen.loop(gamepad)
-        time.sleep(0.05)
+if not SHOW_SPLASHSCREEN:
+    gamepad.button_X.on_press = True
+while not splash_screen.go_to_next_screen:
+    splash_screen.loop(gamepad)
+    time.sleep(0.05)
+    gamepad.loop()
 
 display.refresh()
 display.auto_refresh = False

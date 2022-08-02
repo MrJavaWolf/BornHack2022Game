@@ -68,6 +68,8 @@ class InteractableNpc:
             if npc_data["default_animation"] is not None:
                 self.characer_renderer.play_animation(npc_data["default_animation"])
             self.sprite.append(self.characer_renderer.sprite)
+            self.characer_renderer.flip_x(npc_data["default_flip_x"])
+            self.characer_renderer.flip_y(npc_data["default_flip_y"])
 
         # Debug show enemy center dot
         if DEBUG_SHOW_NPC_POSITION:
@@ -141,6 +143,11 @@ class InteractableNpc:
         elif self.current_action_type == "flip_sprite_y":
             if self.characer_renderer is not None:
                 self.characer_renderer.flip_y(self.current_action["value"])
+            self.go_to_next_interaction(game_time, game_world)
+
+        elif self.current_action_type == "play_animation":
+            if self.characer_renderer is not None:
+                self.characer_renderer.play_animation(self.current_action["animation"])
             self.go_to_next_interaction(game_time, game_world)
 
         else:

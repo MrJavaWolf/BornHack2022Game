@@ -9,7 +9,7 @@ ENEMY_MAX_HEALTH = 100.0
 DEBUG_SHOW_ENEMY_POSITION = False  # Shows the enemies exact position with a small dot
 
 # Visuals
-ENEMY_SPRITE = "/game_data/big_npc_1.bmp"
+ENEMY_SPRITE = "/game_data/big_npc_2.bmp"
 ENEMY_SPRITE_OFFSET = {"x": -16, "y": -26}
 ENEMY_SPRITE_TILE_SIZE = {"width": 32, "height": 36}
 ENEMY_IDLE_ANIMATION = {"name": "idle", "fps": 0.45, "frames": [1, 2]}
