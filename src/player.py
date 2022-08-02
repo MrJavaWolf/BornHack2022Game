@@ -17,6 +17,9 @@ PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
 PLAYER_IDLE_ANIMATION = {"name": "idle", "fps": 0.5, "frames": [0, 1]}
 PLAYER_RUN_ANIMATION = {"name": "run", "fps": 0.15, "frames": [4, 7]}
 
+PLAYER_START_POSITION_X = 64
+PLAYER_START_POSITION_Y = 64
+
 # Attack animation
 ATTACK_SPRITE = "/game_data/attack-slash.bmp"
 ATTACK_SPRITE_OFFSET = {"x": 0, "y": 0}
@@ -66,12 +69,10 @@ class Player:
     __is_attacking: bool = False
     __attack_start_time: float = 0
 
-    def __init__(
-        self, image_manager: ImageManager, position_x: float, position_y: float
-    ):
+    def __init__(self, image_manager: ImageManager):
         self.health = PLAYER_MAX_HEALTH
-        self.position_x = position_x
-        self.position_y = position_y
+        self.position_x = PLAYER_START_POSITION_X
+        self.position_y = PLAYER_START_POSITION_Y
         self.interacting_with_npc = None
 
         # Visuals

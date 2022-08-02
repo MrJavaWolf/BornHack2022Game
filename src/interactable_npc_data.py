@@ -62,6 +62,37 @@ first_introduction_npc = {
     ],
 }
 
+hidden_treasure_1_npc = {
+    "position": {"x": 150, "y": 74},
+    "collision_size": {"width": 16, "height": 16},
+    "sprite_sheet": "/game_data/items.bmp",
+    "sprite_offset": {"x": -8, "y": -8},
+    "sprite_sheet_tile_size": {"width": 16, "height": 16},
+    "default_animation": "idle",
+    "default_flip_x": False,
+    "default_flip_y": False,
+    "animations": [
+        {
+            "name": "idle",
+            "fps": 1,
+            "frames": [21],
+        },
+        {
+            "name": "open",
+            "fps": 0.5,
+            "frames": [21, 22, 23],
+            "loop_animation": False,
+        },
+    ],
+     "actions": [
+        {
+            "action_type": "play_animation",
+            "animation": "open",
+        }
+     ]
+}
+
+
 change_character_npc = {
     "position": {"x": 355, "y": 50},
     "collision_size": {"width": 24, "height": 16},
@@ -301,9 +332,15 @@ no_more_game_npc = {
         {
             "action_type": "talk",
             "text": "Made by:\nJens JWolf Larsen\nhttps://github.com/MrJavaWolf",
-        }
+        },
     ],
 }
 
 
-interactable_npcs = [first_introduction_npc, change_character_npc, world_changing_npc, no_more_game_npc]
+interactable_npcs = [
+    first_introduction_npc,
+    change_character_npc,
+    world_changing_npc,
+    no_more_game_npc,
+    hidden_treasure_1_npc,
+]

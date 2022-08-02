@@ -9,7 +9,7 @@ from tileanimation import TileAnimation
 from imagemanager import ImageManager
 from uispeechbox import UISpeechBox
 
-DEBUG_SHOW_NPC_POSITION = False  # Shows the npc's exact position with a small dot
+DEBUG_SHOW_NPC_POSITION = True  # Shows the npc's exact position with a small dot
 
 # Visuals
 class InteractableNpc:
