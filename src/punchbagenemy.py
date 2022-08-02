@@ -5,7 +5,7 @@ from imagemanager import ImageManager, TRANSPARENT_COLOR
 from characterrenderer import CharacterRenderer
 
 ENEMY_MAX_SPEED = 50.0
-ENEMY_MAX_HEALTH = 100.0
+ENEMY_MAX_HEALTH = 50.0
 DEBUG_SHOW_ENEMY_POSITION = False  # Shows the enemies exact position with a small dot
 
 # Visuals
@@ -20,6 +20,8 @@ TAKE_DAMAGE_WHITE_TIME = 0.2
 
 
 class PunchBagEnemy:
+
+    is_dead: bool = False
 
     despawn: bool = False
     take_damanage_time: float = 0
@@ -49,7 +51,18 @@ class PunchBagEnemy:
         self.sprite.append(self.characer_renderer.sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
+        
+        self.bitmap_skull, self.palette_skull = image_manager.get_image("/game_data/items.bmp")
+        self.skull_sprite = displayio.TileGrid(
+            bitmap=self.bitmap_skull,
+            pixel_shader=self.palette_skull,
+            tile_width=16,
+            tile_height=16,
+            x=-8,
+            y=-10,
+        )
 
+        self.skull_sprite[0] = 24
         # Debug show enemy center dot
         if DEBUG_SHOW_ENEMY_POSITION:
             color_bitmap = displayio.Bitmap(1, 1, 1)
@@ -70,7 +83,13 @@ class PunchBagEnemy:
     def take_damage(self, amount: float, game_time: GameTime):
         self.health -= amount
         if self.health <= 0:
-            self.despawn = True
+            #self.despawn = True
+            # change to item 55 on item map 3
+            if not self.is_dead:
+                self.sprite.append(self.skull_sprite)
+                self.sprite.remove(self.characer_renderer.sprite)
+                self.sprite.scale = 2
+            self.is_dead = True
         else:
             self.take_damanage_time = game_time.total_time
             self.characer_renderer.play_white_out(game_time)
