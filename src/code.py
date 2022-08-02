@@ -144,7 +144,7 @@ while True:
     # gamepad.print_state()
     player.loop(gamepad, game_time, game_world, npc_manager)
     npc_manager.loop(game_time, game_world, player, gamepad)
-    game_world.loop()
+    game_world.loop(game_time)
     #time.sleep(0.01)
 
     world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))
