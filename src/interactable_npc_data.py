@@ -300,7 +300,7 @@ no_more_game_npc = {
         },
         {
             "action_type": "talk",
-            "text": "Made by:\nJens JWolf Larsen",
+            "text": "Made by:\nJens JWolf Larsen\nhttps://github.com/MrJavaWolf",
         }
     ],
 }

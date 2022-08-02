@@ -60,6 +60,7 @@ ANIMATIONS_WORLD_TILES = [
     },
 ]
 
+# Which tile indexes in DEFAULT_SPRITE_SHEET that are walkable
 DEFAULT_WALKABLE_TILES = [
     -1,
     8,

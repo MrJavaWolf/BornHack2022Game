@@ -11,7 +11,7 @@ import gc
 from imagemanager import ImageManager
 
 # Visuals
-PLAYER_SPRITE = "/game_data/player_3.bmp"
+PLAYER_SPRITE = "/game_data/player_3.bmp" # Existing player sprites sheets: player_0 to player_10
 PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
 PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
 PLAYER_IDLE_ANIMATION = {"name": "idle", "fps": 0.5, "frames": [0, 1]}
