@@ -53,7 +53,19 @@ first_introduction_npc = {
         },
         {
             "action_type": "talk",
-            "text": "The controls are\nMove: A2 and A3\nJump: B Button\nAttack: X Button",
+            "text": "The controls are:",
+        },
+		{
+            "action_type": "talk",
+            "text": "To move:\nAn analog stick connected to A2 and A3",
+        },
+		{
+            "action_type": "talk",
+            "text": "To Dash:\nB Button",
+        },
+		{
+            "action_type": "talk",
+            "text": "To interact or attack:\nX Button",
         },
         {
             "action_type": "talk",
