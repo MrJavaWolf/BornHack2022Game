@@ -104,7 +104,7 @@ while True:
     frame_counter.loop()
     # frame_counter.print_state()
     gamepad.loop()
-    # gamepad.print_state()
+    #gamepad.print_state()
     player.loop(gamepad, game_time, game_world, npc_manager)
     npc_manager.loop(game_time, game_world, player, gamepad)
     game_world.loop(game_time)

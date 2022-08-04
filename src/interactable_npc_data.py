@@ -318,7 +318,7 @@ world_changing_npc = {
         {"action_type": "flip_sprite_x", "value": True},
         {
             "action_type": "talk",
-            "text": "Well now I can get into my house again",
+            "text": "Be careful I do have a small 'rat' problem in my house",
         },
     ],
 }

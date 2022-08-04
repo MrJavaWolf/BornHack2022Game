@@ -313,6 +313,20 @@ class Player:
         if self.characer_renderer.get_current_animation_name() != "run":
             self.characer_renderer.play_animation("run")
 
+    def take_damage(self, amount: float, game_time: GameTime):
+        self.health -= amount
+        self.characer_renderer.play_white_out(game_time)
+        #if self.health <= 0:
+            #self.despawn = True
+            # change to item 55 on item map 3
+            # if not self.is_dead:
+            #    self.sprite.append(self.skull_sprite)
+            #    self.sprite.remove(self.characer_renderer.sprite)
+            #    self.sprite.scale = 2
+            #self.is_dead = True
+        #else:
+
+
     ### Utility
     def move_to_position(
         self,

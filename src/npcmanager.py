@@ -12,9 +12,16 @@ from uispeechbox import UISpeechBox
 
 class NpcManager:
     def __init__(self, image_manager: ImageManager, ui_speech_box: UISpeechBox):
-        self.punch_bag_enemy = PunchBagEnemy(image_manager, 594, 64)
         self.sprite = displayio.Group(scale=1)
-        self.sprite.append(self.punch_bag_enemy.sprite)
+        
+        # Enemies
+        self.enemies = []
+        self.enemies.append(PunchBagEnemy(image_manager, 594, 64))
+        self.enemies.append(PunchBagEnemy(image_manager, 544, 64))
+        self.enemies.append(PunchBagEnemy(image_manager, 200, 32))
+
+        for enemy in self.enemies:
+            self.sprite.append(enemy.sprite)
 
         # Initialize interactable npcs
         self.interactable_npcs = []
@@ -30,21 +37,14 @@ class NpcManager:
         player: player.Player,
         gamepad: Gamepad,
     ):
-        if self.punch_bag_enemy:
-            self.punch_bag_enemy.loop(game_time, game_world)
-
-            if self.punch_bag_enemy.despawn:
-                self.sprite.remove(self.punch_bag_enemy.sprite)
-                self.punch_bag_enemy = None
+        for enemy in self.enemies:
+            enemy.loop(game_time, game_world,  player)
 
         for interactable_npc in self.interactable_npcs:
             interactable_npc.loop(game_time, game_world, gamepad)
 
     def get_damageable_npcs(self):
-        damageable_npcs = []
-        if self.punch_bag_enemy:
-            damageable_npcs.append(self.punch_bag_enemy)
-        return damageable_npcs
+        return self.enemies
 
     def get_interactable_npcs(self):
         return self.interactable_npcs
