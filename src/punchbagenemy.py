@@ -33,7 +33,7 @@ ENEMY_ATTACK_DAMAGE = 10
 class PunchBagEnemy:
 
     is_dead: bool = False
-
+    player_death_time: float = 0
     despawn: bool = False
     take_damanage_time: float = 0
     attack_start_time: float = 0
@@ -75,8 +75,8 @@ class PunchBagEnemy:
             x=-8,
             y=-10,
         )
-
         self.skull_sprite[0] = 24
+
         # Debug show enemy center dot
         if DEBUG_SHOW_ENEMY_POSITION:
             color_bitmap = displayio.Bitmap(1, 1, 1)

@@ -6,6 +6,7 @@ import json
 from collections import OrderedDict
 
 
+
 # Setup the pins
 BUTTON_A_PIN = board.BTN_A
 BUTTON_B_PIN = board.BTN_B

@@ -17,7 +17,8 @@ import adafruit_imageload
 from uispeechbox import UISpeechBox
 from splashscreen import SplashScreen
 
-SHOW_FPS = True
+
+SHOW_FPS = False
 SHOW_SPLASHSCREEN = True
 
 SCREEN_WIDTH = 128
@@ -88,6 +89,7 @@ screen.append(world_sprite)
 # What to show on screen - UI
 ui_sprite = displayio.Group()
 ui_sprite.append(ui_speech_box.sprite_ui)
+ui_sprite.append(player.sprite_ui)
 screen.append(ui_sprite)
 if SHOW_FPS:
     screen.append(frame_counter.sprite)
@@ -109,6 +111,7 @@ while True:
     npc_manager.loop(game_time, game_world, player, gamepad)
     game_world.loop(game_time)
     #time.sleep(0.01)
+    
 
     world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))
     world_sprite.y = int(-SCREEN_HEIGHT * int(player.position_y / SCREEN_HEIGHT))

@@ -10,6 +10,10 @@ import npcmanager
 import gc
 from imagemanager import ImageManager
 
+PLAYER_START_POSITION_X = 64
+PLAYER_START_POSITION_Y = 64
+
+
 # Visuals
 PLAYER_SPRITE = "/game_data/player_3.bmp" # Existing player sprites sheets: player_0 to player_10
 PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
@@ -17,8 +21,11 @@ PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
 PLAYER_IDLE_ANIMATION = {"name": "idle", "fps": 0.5, "frames": [0, 1]}
 PLAYER_RUN_ANIMATION = {"name": "run", "fps": 0.15, "frames": [4, 7]}
 
-PLAYER_START_POSITION_X = 64
-PLAYER_START_POSITION_Y = 64
+# Health
+HEALTH_SPRITE = "/game_data/items.bmp"
+FULL_HEALTH = 8
+NO_HEALTH = 10
+NUMBER_OF_HEARTS = 3
 
 # Attack animation
 ATTACK_SPRITE = "/game_data/attack-slash.bmp"
@@ -28,7 +35,6 @@ ATTACK_SPRITE_ANIMATION = {"name": "attack", "fps": 0.05, "frames": [0, 1, 2], "
 
 # Generel
 PLAYER_MAX_SPEED = 50.0
-PLAYER_MAX_HEALTH = 100.0
 DEBUG_SHOW_PLAYER_POSITION = False  # Shows the players exact position with a small dot
 
 # Dash
@@ -46,8 +52,8 @@ PLAYER_ATTACK_RANGE = 25
 
 class Player:
 
-    health: float = 50
-    """The amount of health the player currently has"""
+    is_dead: bool = False
+    """Wether the player is dead"""
 
     position_x: float = 0
     """The players X position"""
@@ -70,7 +76,7 @@ class Player:
     __attack_start_time: float = 0
 
     def __init__(self, image_manager: ImageManager):
-        self.health = PLAYER_MAX_HEALTH
+        
         self.position_x = PLAYER_START_POSITION_X
         self.position_y = PLAYER_START_POSITION_Y
         self.interacting_with_npc = None
@@ -86,7 +92,8 @@ class Player:
             [PLAYER_IDLE_ANIMATION, PLAYER_RUN_ANIMATION]
         )
         self.characer_renderer.play_animation("idle")
-        self.sprite = displayio.Group(scale=1)
+
+        self.sprite = displayio.Group()
         self.sprite.append(self.characer_renderer.sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
@@ -100,6 +107,36 @@ class Player:
             ATTACK_SPRITE_OFFSET["x"],
             ATTACK_SPRITE_OFFSET["y"],
             [ATTACK_SPRITE_ANIMATION])
+
+
+        # Death skull
+        self.bitmap_skull, self.palette_skull = image_manager.get_image("/game_data/items.bmp")
+        self.skull_sprite = displayio.TileGrid(
+            bitmap=self.bitmap_skull,
+            pixel_shader=self.palette_skull,
+            tile_width=16,
+            tile_height=16,
+            x=-8,
+            y=-10,
+        )
+        self.skull_sprite[0] = 24
+
+        # Player UI
+        self.sprite_ui = displayio.Group()
+        self.bitmap_health, self.palette_health = image_manager.get_image("/game_data/items.bmp")
+        self.health_sprite = displayio.TileGrid(
+            bitmap=self.bitmap_skull,
+            pixel_shader=self.palette_skull,
+            tile_width=16,
+            tile_height=16,
+            width = NUMBER_OF_HEARTS,
+        )
+
+        # Health hearts
+        for i in range(NUMBER_OF_HEARTS):
+            self.health_sprite[i] = FULL_HEALTH
+
+        self.sprite_ui.append(self.health_sprite)
 
         # Debug show player center dot
         if DEBUG_SHOW_PLAYER_POSITION:
@@ -121,6 +158,8 @@ class Player:
         self.characer_renderer.loop(game_time)
         self.attack_renderer.loop(game_time)
 
+        if self.is_dead:
+            return
 
         # Is interacting with an NPC (like talking)
         if self.interacting_with_npc is not None:
@@ -313,19 +352,33 @@ class Player:
         if self.characer_renderer.get_current_animation_name() != "run":
             self.characer_renderer.play_animation("run")
 
-    def take_damage(self, amount: float, game_time: GameTime):
-        self.health -= amount
-        self.characer_renderer.play_white_out(game_time)
-        #if self.health <= 0:
-            #self.despawn = True
-            # change to item 55 on item map 3
-            # if not self.is_dead:
-            #    self.sprite.append(self.skull_sprite)
-            #    self.sprite.remove(self.characer_renderer.sprite)
-            #    self.sprite.scale = 2
-            #self.is_dead = True
-        #else:
 
+    def get_life(self):
+        health = 0
+        for i in range(NUMBER_OF_HEARTS):
+            if self.health_sprite[i] == FULL_HEALTH:
+                health += 1
+        return health
+
+    def subtact_health(self):
+        for i in reversed(range(NUMBER_OF_HEARTS)):
+            if self.health_sprite[i] == FULL_HEALTH:
+                self.health_sprite[i] = NO_HEALTH
+                break
+    def take_damage(self, amount: float, game_time: GameTime):       
+        life = self.get_life()
+        if life > 0:
+            self.characer_renderer.play_white_out(game_time)
+            self.subtact_health()
+        
+        life = self.get_life()
+        if life <= 0:
+             if not self.is_dead:
+                self.sprite.append(self.skull_sprite)
+                self.sprite.remove(self.characer_renderer.sprite)
+                self.sprite.scale = 2
+                self.is_dead = True
+                self.player_death_time = game_time.total_time
 
     ### Utility
     def move_to_position(

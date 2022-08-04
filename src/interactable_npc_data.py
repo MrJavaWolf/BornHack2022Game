@@ -314,11 +314,11 @@ world_changing_npc = {
             "tile_y": 8,
             "to_tile_type": 70,
         },
-        {"action_type": "wait", "time": 1},
+        {"action_type": "wait", "time": 0.2},
         {"action_type": "flip_sprite_x", "value": True},
         {
             "action_type": "talk",
-            "text": "Be careful I do have a small 'rat' problem in my house",
+            "text": "Be carefuln I do have a small 'rat' problem in my house",
         },
     ],
 }
