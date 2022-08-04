@@ -7,12 +7,12 @@ from collections import OrderedDict
 
 
 # Setup the pins
-BUTTON_A_PIN = board.G0
-BUTTON_B_PIN = board.G1
-BUTTON_X_PIN = board.G2
-BUTTON_Y_PIN = board.G3
-ANALOG_X_PIN = board.G9
-ANALOG_Y_PIN = board.BATT_VIN3
+BUTTON_A_PIN = board.BTN_A
+BUTTON_B_PIN = board.BTN_B
+BUTTON_X_PIN = board.BTN_X
+BUTTON_Y_PIN = board.BTN_Y
+ANALOG_X_PIN = board.A2
+ANALOG_Y_PIN = board.A3
 ANALOG_DEAD_ZONE = 0.05
 INVERT_ANALOG_X = False
 INVERT_ANALOG_Y = True
