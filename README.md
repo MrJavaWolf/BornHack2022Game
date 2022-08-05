@@ -32,3 +32,5 @@ PLAYER_SPRITE = "/game_data/player_3.bmp" # Existing player sprites sheets: play
 - Change the world by editing the `game_data/world_map.csv`. It is easiere to edit it using [Tiled Map Editor](https://www.mapeditor.org/), open the `game_data/world_map.tmx` and when you are happy with your changes export a new .csv file
 
 - Or change anything you feel like :)
+
+Disclaimer: I got my badge early and had some time playing with it before BornHack started
