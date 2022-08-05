@@ -3,6 +3,7 @@
 This is a very small game you can put on a [BornHack 2022 Game On Badge](https://github.com/bornhack/badge2022). Feel free to change anything as you see fit.
 
 ![Teaser](resources/teaser-1.jpg)
+![Teaser](resources/teaser-video.mp4)
 
 ## Requirements
 
