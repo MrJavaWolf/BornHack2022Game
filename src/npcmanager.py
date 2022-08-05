@@ -1,5 +1,5 @@
 from gamepad import Gamepad
-from punchbagenemy import PunchBagEnemy
+from enemy import Enemy
 from gametime import GameTime
 from gameworld import GameWorld
 from interactable_npc import InteractableNpc
@@ -16,9 +16,9 @@ class NpcManager:
         
         # Enemies
         self.enemies = []
-        self.enemies.append(PunchBagEnemy(image_manager, 594, 64))
-        self.enemies.append(PunchBagEnemy(image_manager, 544, 64))
-        self.enemies.append(PunchBagEnemy(image_manager, 200, 32))
+        self.enemies.append(Enemy(image_manager, 594, 64, self))
+        self.enemies.append(Enemy(image_manager, 544, 64, self))
+        self.enemies.append(Enemy(image_manager, 200, 32, self))
 
         for enemy in self.enemies:
             self.sprite.append(enemy.sprite)
@@ -62,6 +62,21 @@ class NpcManager:
                 return False
         return True
 
+    def is_walkable_enemy(self, world_x: float, world_y: float, ignore:Enemy):
+        for npc in self.enemies:
+            if npc == ignore:
+                continue
+            if self.is_within_npc(
+                npc.position_x,
+                npc.position_y,
+                npc.collision_size_width,
+                npc.collision_size_height,
+                world_x,
+                world_y,
+            ):
+                return False
+        return True
+
     def is_within_npc(
         self,
         npc_x: float,
@@ -73,3 +88,5 @@ class NpcManager:
     ):
         return npc_x - collision_size_width / 2 <= player_x <= npc_x + collision_size_width and \
                npc_y - collision_size_height / 2 <= player_y <= npc_y + collision_size_height
+
+    

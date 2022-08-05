@@ -5,9 +5,14 @@ from imagemanager import ImageManager, TRANSPARENT_COLOR
 from characterrenderer import CharacterRenderer
 import player
 import math
+import npcmanager
+
+# Generel
 ENEMY_MAX_SPEED = 20.0
 ENEMY_MAX_HEALTH = 50.0
 DEBUG_SHOW_ENEMY_POSITION = True  # Shows the enemies exact position with a small dot
+COLLISION_SIZE_WIDTH = 20
+COLLISION_SIZE_HEIGHT = 20
 
 # Visuals
 ENEMY_SPRITE = "/game_data/big_npc_2.bmp"
@@ -21,7 +26,7 @@ ENEMY_ATTACK_ANIMATION = {"name": "attack", "fps": 0.3, "frames": [3, 5, 6, 7], 
 TAKE_DAMAGE_WHITE_TIME = 0.2
 
 # Attack
-MAX_DISTANCE_TO_PLAYER = 100
+MAX_DISTANCE_TO_PLAYER = 70
 START_ATTACK_DISTANCE_TO_PLAYER = 15
 ATTACK_DISTANCE_TO_PLAYER = 18
 
@@ -30,8 +35,13 @@ ENEMY_ATTACK_DAMAGE_TIME = 1
 ENEMY_ATTACK_DAMAGE = 10
 
 
-class PunchBagEnemy:
+class Enemy:
 
+    collision_size_width: float
+    """How big the NPC is"""
+
+    collision_size_height: float
+    """How big the NPC is"""
     is_dead: bool = False
     player_death_time: float = 0
     despawn: bool = False
@@ -41,12 +51,15 @@ class PunchBagEnemy:
     have_dealt_damage: bool = False
 
     def __init__(
-        self, image_manager: ImageManager, position_x: float, position_y: float
+        self, image_manager: ImageManager, position_x: float, position_y: float, npc_manager:npcmanager.NpcManager 
     ):
         # Setup
         self.health = ENEMY_MAX_HEALTH
         self.position_x = position_x
         self.position_y = position_y
+        self.collision_size_width = COLLISION_SIZE_WIDTH
+        self.collision_size_height = COLLISION_SIZE_HEIGHT
+        self.npc_manager = npc_manager
 
         # Visuals
         self.characer_renderer = CharacterRenderer(
@@ -175,12 +188,12 @@ class PunchBagEnemy:
             x_position = 0
             self.position_x = x_position
             self.position_y = y_position
-        if game_world.is_walkable(x_position, y_position):
+        if game_world.is_walkable(x_position, y_position) and self.npc_manager.is_walkable_enemy(x_position, y_position, self):
             self.position_x = x_position
             self.position_y = y_position
-        elif game_world.is_walkable(self.position_x, y_position): 
+        elif game_world.is_walkable(self.position_x, y_position) and self.npc_manager.is_walkable_enemy(self.position_x, y_position, self): 
             self.position_y = y_position
-        elif game_world.is_walkable(x_position, self.position_y):
+        elif game_world.is_walkable(x_position, self.position_y) and self.npc_manager.is_walkable_enemy(x_position, self.position_y, self):
             self.position_x = x_position
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
