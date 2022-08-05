@@ -2,8 +2,9 @@
 
 This is a very small game you can put on a [BornHack 2022 Game On Badge](https://github.com/bornhack/badge2022). Feel free to change anything as you see fit.
 
+[See the video](resources/teaser-video.mp4)
+
 ![Teaser](resources/teaser-1.jpg)
-![Teaser](resources/teaser-video.mp4)
 
 ## Requirements
 
@@ -29,3 +30,5 @@ PLAYER_SPRITE = "/game_data/player_3.bmp" # Existing player sprites sheets: play
 ```
 
 - Change the world by editing the `game_data/world_map.csv`. It is easiere to edit it using [Tiled Map Editor](https://www.mapeditor.org/), open the `game_data/world_map.tmx` and when you are happy with your changes export a new .csv file
+
+- Or change anything you feel like :)
