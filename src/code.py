@@ -16,6 +16,7 @@ from imagemanager import ImageManager
 import adafruit_imageload
 from uispeechbox import UISpeechBox
 from splashscreen import SplashScreen
+from gamestate import GameState
 
 
 SHOW_FPS = False
@@ -70,29 +71,31 @@ def initialize(init):
     print("{} Used: {} bytes, Memory left: {} bytes".format(type(created_object).__name__, memory_before - memory_after, memory_after))
     return created_object
 
-image_manager = initialize(lambda: ImageManager())
-frame_counter = initialize(lambda: FrameCounter())
-ui_speech_box = initialize(lambda: UISpeechBox())
-game_world = initialize(lambda: GameWorld(image_manager))
-player = initialize(lambda: Player(image_manager))
-game_time = initialize(lambda: GameTime())
-npc_manager = initialize(lambda: NpcManager(image_manager, ui_speech_box))
+game_state = GameState()
+game_state.gamepad = gamepad
+game_state.image_manager = initialize(lambda: ImageManager())
+game_state.frame_counter = initialize(lambda: FrameCounter())
+game_state.ui_speech_box = initialize(lambda: UISpeechBox())
+game_state.game_world = initialize(lambda: GameWorld(game_state.image_manager))
+game_state.player = initialize(lambda: Player(game_state.image_manager))
+game_state.game_time = initialize(lambda: GameTime())
+game_state.npc_manager = initialize(lambda: NpcManager(game_state.image_manager, game_state.ui_speech_box))
 screen = displayio.Group()
 
 # What to show on screen - World
 world_sprite = displayio.Group()
-world_sprite.append(game_world.sprite)
-world_sprite.append(npc_manager.sprite)
-world_sprite.append(player.sprite)
+world_sprite.append(game_state.game_world.sprite)
+world_sprite.append(game_state.npc_manager.sprite)
+world_sprite.append(game_state.player.sprite)
 screen.append(world_sprite)
 
 # What to show on screen - UI
 ui_sprite = displayio.Group()
-ui_sprite.append(ui_speech_box.sprite_ui)
-ui_sprite.append(player.sprite_ui)
+ui_sprite.append(game_state.ui_speech_box.sprite_ui)
+ui_sprite.append(game_state.player.sprite_ui)
 screen.append(ui_sprite)
 if SHOW_FPS:
-    screen.append(frame_counter.sprite)
+    screen.append(game_state.frame_counter.sprite)
 
 
 display.show(screen)
@@ -101,20 +104,19 @@ start_mem = gc.mem_free()
 print("Available memory: {} bytes".format(start_mem))
 
 while True:
-    game_time.loop()
+    game_state.game_time.loop()
     # game_time.print_state()
-    frame_counter.loop()
+    game_state.frame_counter.loop()
     # frame_counter.print_state()
     gamepad.loop()
     #gamepad.print_state()
-    player.loop(gamepad, game_time, game_world, npc_manager)
-    npc_manager.loop(game_time, game_world, player, gamepad)
-    game_world.loop(game_time)
+    game_state.player.loop(game_state)
+    game_state.npc_manager.loop(game_state)
+    game_state.game_world.loop(game_state.game_time)
     #time.sleep(0.01)
     
-
-    world_sprite.x = int(-SCREEN_WIDTH * int(player.position_x / SCREEN_WIDTH))
-    world_sprite.y = int(-SCREEN_HEIGHT * int(player.position_y / SCREEN_HEIGHT))
+    world_sprite.x = int(-SCREEN_WIDTH * int(game_state.player.position_x / SCREEN_WIDTH))
+    world_sprite.y = int(-SCREEN_HEIGHT * int(game_state.player.position_y / SCREEN_HEIGHT))
     #world_sprite.x = int(-player.position_x + SCREEN_WIDTH / 2)
     #world_sprite.y = int(-player.position_y + SCREEN_HEIGHT / 2)
     display.refresh()

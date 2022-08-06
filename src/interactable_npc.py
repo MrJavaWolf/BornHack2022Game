@@ -3,6 +3,7 @@ import displayio
 from adafruit_display_shapes.roundrect import RoundRect
 
 from gamepad import Gamepad
+from gamestate import GameState
 from gametime import GameTime
 from gameworld import GameWorld
 # from player import Player
@@ -13,6 +14,8 @@ from uispeechbox import UISpeechBox
 DEBUG_SHOW_NPC_POSITION = False  # Shows the npc's exact position with a small dot
 
 # Visuals
+
+
 class InteractableNpc:
 
     position_x: float
@@ -67,7 +70,8 @@ class InteractableNpc:
                 npc_data["animations"],
             )
             if npc_data["default_animation"] is not None:
-                self.characer_renderer.play_animation(npc_data["default_animation"])
+                self.characer_renderer.play_animation(
+                    npc_data["default_animation"])
             self.sprite.append(self.characer_renderer.sprite)
             self.characer_renderer.flip_x(npc_data["default_flip_x"])
             self.characer_renderer.flip_y(npc_data["default_flip_y"])
@@ -82,79 +86,92 @@ class InteractableNpc:
             )
             self.sprite.append(self.character_position)
 
-    def loop(self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad, player):
+    def loop(self, game_state: GameState):
 
         if self.characer_renderer is not None:
-            self.characer_renderer.loop(game_time)
+            self.characer_renderer.loop(game_state.game_time)
 
         if self.is_interacted_with:
-            self.interaction_loop(game_time, game_world, gamepad, player)
+            self.interaction_loop(game_state)
 
     def interact(self, game_time: GameTime):
         self.is_interacted_with = True
         self.__current_action_index = -1
 
     def interaction_loop(
-        self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad, player: Player
+        self, game_state: GameState
     ):
         if not self.is_interacted_with:
             return
 
         if self.__current_action_index == -1:
-            self.go_to_next_interaction(game_time, game_world)
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
             return
 
         if self.current_action_type == "wait":
             if (
-                game_time.total_time - self.__current_action_start_time
+                game_state.game_time.total_time - self.__current_action_start_time
                 >= self.current_action["time"]
             ):
-                self.go_to_next_interaction(game_time, game_world)
+                self.go_to_next_interaction(
+                    game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "change_world_tile":
-            game_world.change_tile(
+            game_state.game_world.change_tile(
                 self.current_action["tile_x"],
                 self.current_action["tile_y"],
                 self.current_action["to_tile_type"],
             )
-            self.go_to_next_interaction(game_time, game_world)
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "camera_shake":
-            time_eclipsed = game_time.total_time - self.__current_action_start_time
+            time_eclipsed = game_state.game_time.total_time - self.__current_action_start_time
             if time_eclipsed < self.current_action["time"]:
                 dampening = 1 - time_eclipsed / (
-                    self.current_action["time"] * self.current_action["decrease_factor"]
+                    self.current_action["time"] *
+                    self.current_action["decrease_factor"]
                 )
-                game_world.shake(self.current_action["amount"] * dampening)
+                game_state.game_world.shake(
+                    self.current_action["amount"] * dampening)
             else:
-                game_world.shake(0)
-                self.go_to_next_interaction(game_time, game_world)
+                game_state.game_world.shake(0)
+                self.go_to_next_interaction(
+                    game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "talk":
-            if gamepad.button_X.on_press:
+            if game_state.gamepad.button_X.on_press:
                 self.ui_speech_box.hide()
-                self.go_to_next_interaction(game_time, game_world)
+                self.go_to_next_interaction(
+                    game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "flip_sprite_x":
             if self.characer_renderer is not None:
                 self.characer_renderer.flip_x(self.current_action["value"])
 
-            self.go_to_next_interaction(game_time, game_world)
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "flip_sprite_y":
             if self.characer_renderer is not None:
                 self.characer_renderer.flip_y(self.current_action["value"])
-            self.go_to_next_interaction(game_time, game_world)
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
 
         elif self.current_action_type == "play_animation":
             if self.characer_renderer is not None:
-                self.characer_renderer.play_animation(self.current_action["animation"])
-            self.go_to_next_interaction(game_time, game_world)
+                self.characer_renderer.play_animation(
+                    self.current_action["animation"])
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
         elif self.current_action_type == "change_skin":
-            player.set_player_sprite(self.current_action["skin"])
-            self.go_to_next_interaction(game_time, game_world)
+            game_state.player.set_player_sprite(self.current_action["skin"])
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
         else:
-            self.go_to_next_interaction(game_time, game_world)
+            self.go_to_next_interaction(
+                game_state.game_time, game_state.game_world)
 
     def go_to_next_interaction(self, game_time: GameTime, game_world: GameWorld):
         self.__current_action_index += 1

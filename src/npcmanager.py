@@ -5,15 +5,15 @@ from gameworld import GameWorld
 from interactable_npc import InteractableNpc
 from imagemanager import ImageManager
 import displayio
-import player
 import interactable_npc_data
 from uispeechbox import UISpeechBox
+from gamestate import GameState
 
 
 class NpcManager:
     def __init__(self, image_manager: ImageManager, ui_speech_box: UISpeechBox):
         self.sprite = displayio.Group(scale=1)
-        
+
         # Enemies
         self.enemies = []
         self.enemies.append(Enemy(image_manager, 594, 64, self))
@@ -32,16 +32,13 @@ class NpcManager:
 
     def loop(
         self,
-        game_time: GameTime,
-        game_world: GameWorld,
-        player: player.Player,
-        gamepad: Gamepad,
+        game_state: GameState,
     ):
         for enemy in self.enemies:
-            enemy.loop(game_time, game_world,  player)
+            enemy.loop(game_state)
 
         for interactable_npc in self.interactable_npcs:
-            interactable_npc.loop(game_time, game_world, gamepad, player)
+            interactable_npc.loop(game_state)
 
     def get_damageable_npcs(self):
         return self.enemies
@@ -62,7 +59,7 @@ class NpcManager:
                 return False
         return True
 
-    def is_walkable_enemy(self, world_x: float, world_y: float, ignore:Enemy):
+    def is_walkable_enemy(self, world_x: float, world_y: float, ignore: Enemy):
         for npc in self.enemies:
             if npc == ignore:
                 continue
@@ -87,6 +84,4 @@ class NpcManager:
         player_y: float,
     ):
         return npc_x - collision_size_width / 2 <= player_x <= npc_x + collision_size_width and \
-               npc_y - collision_size_height / 2 <= player_y <= npc_y + collision_size_height
-
-    
+            npc_y - collision_size_height / 2 <= player_y <= npc_y + collision_size_height
