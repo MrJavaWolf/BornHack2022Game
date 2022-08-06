@@ -15,7 +15,7 @@ PLAYER_START_POSITION_Y = 64
 
 
 # Visuals
-PLAYER_SPRITE = "/game_data/player_3.bmp" # Existing player sprites sheets: player_0 to player_10
+PLAYER_SPRITE = "/game_data/player_9.bmp" # Existing player sprites sheets: player_0 to player_10
 PLAYER_SPRITE_OFFSET = {"x": -8, "y": -29}
 PLAYER_SPRITE_TILE_SIZE = {"width": 16, "height": 32}
 PLAYER_IDLE_ANIMATION = {"name": "idle", "fps": 0.5, "frames": [0, 1]}
@@ -82,21 +82,15 @@ class Player:
         self.interacting_with_npc = None
 
         # Visuals
-        self.characer_renderer = CharacterRenderer(
-            image_manager,
-            PLAYER_SPRITE,
-            PLAYER_SPRITE_TILE_SIZE["width"],
-            PLAYER_SPRITE_TILE_SIZE["height"],
-            PLAYER_SPRITE_OFFSET["x"],
-            PLAYER_SPRITE_OFFSET["y"],
-            [PLAYER_IDLE_ANIMATION, PLAYER_RUN_ANIMATION]
-        )
-        self.characer_renderer.play_animation("idle")
+        self._image_manager = image_manager
 
         self.sprite = displayio.Group()
-        self.sprite.append(self.characer_renderer.sprite)
         self.sprite.x = int(self.position_x)
         self.sprite.y = int(self.position_y)
+        self.set_player_sprite(PLAYER_SPRITE)
+
+
+
 
         # Visuals - Attack
         self.attack_renderer = CharacterRenderer(
@@ -147,6 +141,21 @@ class Player:
                 color_bitmap, pixel_shader=color_palette
             )
             self.sprite.append(self.character_position)
+    def set_player_sprite(self,sprite):
+        if self.characer_renderer:
+            self.sprite.remove(self.characer_renderer.sprite)
+
+        self.characer_renderer= CharacterRenderer(
+            self._image_manager,
+            sprite,
+            PLAYER_SPRITE_TILE_SIZE["width"],
+            PLAYER_SPRITE_TILE_SIZE["height"],
+            PLAYER_SPRITE_OFFSET["x"],
+            PLAYER_SPRITE_OFFSET["y"],
+            [PLAYER_IDLE_ANIMATION, PLAYER_RUN_ANIMATION]
+        )
+        self.characer_renderer.play_animation("idle")
+        self.sprite.append(self.characer_renderer.sprite)
 
     def loop(
         self,

@@ -70,7 +70,7 @@ first_introduction_npc = {
         {
             "action_type": "talk",
             "text": "You can change everything.\nNow go and have fun!",
-        },
+        }
     ],
 }
 
@@ -108,6 +108,13 @@ hidden_treasure_1_npc = {
         {
             "action_type": "play_animation",
             "animation": "open",
+        },        {
+            "action_type": "talk",
+            "text": "You found E",
+        },
+        {
+            "action_type": "change_skin",
+            "skin":"/game_data/player_0.bmp"
         }
     ],
 }
@@ -152,7 +159,7 @@ change_character_npc = {
         {
             "action_type": "talk",
             "text": "Nobody knows!",
-        },
+        }
     ],
 }
 

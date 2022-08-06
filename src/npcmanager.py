@@ -41,7 +41,7 @@ class NpcManager:
             enemy.loop(game_time, game_world,  player)
 
         for interactable_npc in self.interactable_npcs:
-            interactable_npc.loop(game_time, game_world, gamepad)
+            interactable_npc.loop(game_time, game_world, gamepad, player)
 
     def get_damageable_npcs(self):
         return self.enemies

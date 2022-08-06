@@ -5,6 +5,7 @@ from adafruit_display_shapes.roundrect import RoundRect
 from gamepad import Gamepad
 from gametime import GameTime
 from gameworld import GameWorld
+# from player import Player
 from tileanimation import TileAnimation
 from imagemanager import ImageManager
 from uispeechbox import UISpeechBox
@@ -81,20 +82,20 @@ class InteractableNpc:
             )
             self.sprite.append(self.character_position)
 
-    def loop(self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad):
+    def loop(self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad, player):
 
         if self.characer_renderer is not None:
             self.characer_renderer.loop(game_time)
 
         if self.is_interacted_with:
-            self.interaction_loop(game_time, game_world, gamepad)
+            self.interaction_loop(game_time, game_world, gamepad, player)
 
     def interact(self, game_time: GameTime):
         self.is_interacted_with = True
         self.__current_action_index = -1
 
     def interaction_loop(
-        self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad
+        self, game_time: GameTime, game_world: GameWorld, gamepad: Gamepad, player: Player
     ):
         if not self.is_interacted_with:
             return
@@ -149,7 +150,9 @@ class InteractableNpc:
             if self.characer_renderer is not None:
                 self.characer_renderer.play_animation(self.current_action["animation"])
             self.go_to_next_interaction(game_time, game_world)
-
+        elif self.current_action_type == "change_skin":
+            player.set_player_sprite(self.current_action["skin"])
+            self.go_to_next_interaction(game_time, game_world)
         else:
             self.go_to_next_interaction(game_time, game_world)
 
